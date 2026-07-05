@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Harfino (حرفينو)
 
-## Getting Started
+A location-aware marketplace platform connecting Egyptian tradespeople (craftsmen) with clients seeking services.
 
-First, run the development server:
+## Overview
+
+Harfino is a Next.js-based modular monolith platform that enables:
+- Real-time location tracking of available craftsmen
+- Craftsman verification workflow (ID, transport, workshop verification)
+- Order management with status transitions
+- Rating and review system
+- Complaint handling with automated 3-strike ban policy
+- Admin dashboard for moderation
+
+**Stack**: Next.js 14 (App Router) + PostgreSQL + Valkey (Redis-compatible) + BullMQ + NextAuth v5 + React Query
+
+## Prerequisites
+
+| Requirement | Version |
+|-------------|---------|
+| Node.js | 20.x LTS |
+| Docker | 24.x |
+| Docker Compose | v2.x |
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 1. Clone and install dependencies
+git clone https://github.com/herafinho/platform.git
+cd herafino
+npm install
+
+# 2. Set up environment
+cp .env.example .env.local
+# Edit .env.local with your credentials
+
+# 3. Start infrastructure
+npm run docker:dev
+# Starts PostgreSQL and Valkey containers
+
+# 4. Run database migrations
+npm run db:generate
+npm run db:migrate
+
+# 5. Seed database (optional)
+npm run db:seed
+
+# 6. Start development servers
+npm run dev        # Next.js app (http://localhost:3000)
+npm run worker:dev # Background workers
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [Project Plan](docs/plan.md) - Complete technical specification and roadmap
+- [Architecture Decision Records](docs/adr/) - Architectural decisions and rationale
+- [Project Structure](docs/project-structure.md) - Codebase organization
+- [Architecture Diagrams](docs/diagrams/) - C4 model, ERD, sequence diagrams
+- [Troubleshooting](docs/troubleshooting/) - Common issues and solutions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Available Scripts
 
-## Learn More
+```bash
+npm run dev                  # Start Next.js dev server
+npm run build                # Production build
+npm run start                # Start production server
+npm run lint                 # ESLint + auto-fix
+npm run typecheck            # TypeScript check
+npm run test                 # Run all tests
+npm run test:unit            # Unit tests (70%)
+npm run test:integration     # Integration tests (20%)
+npm run test:e2e             # E2E tests (10%)
+npm run test:coverage        # Coverage report
+npm run db:generate          # Drizzle migrations
+npm run db:migrate           # Apply migrations
+npm run db:studio            # Database browser
+npm run worker:dev           # Background workers (dev)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+┌─────────────────────────────────────────────────────────┐
+│  Next.js Fullstack (App Router + Route Handlers)          │
+├─────────────────────────────────────────────────────────┤
+│  Modules: Auth, User, Craftsman, Order, Review, Complaint│
+├─────────────────────────────────────────────────────────┤
+│  PostgreSQL 16 (SSOT) + Valkey (Cache + Queue) + BullMQ  │
+└─────────────────────────────────────────────────────────┘
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Contributing
 
-## Deploy on Vercel
+Before submitting a PR, ensure:
+- [ ] All tests pass (`npm run test:all`)
+- [ ] TypeScript compiles (`npm run typecheck`)
+- [ ] ESLint passes (`npm run lint`)
+- [ ] Code coverage ≥ 80%
+- [ ] Relevant diagrams updated (if architectural changes)
+- [ ] ADR created (for architectural decisions)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License with Egyptian attribution.

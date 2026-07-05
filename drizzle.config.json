@@ -1,0 +1,8 @@
+{
+  "schema": "./src/lib/db/schema.ts",
+  "out": "./src/lib/db/migrations",
+  "dialect": "postgresql",
+  "dbCredentials": {
+    "url": "postgres://herafino:password@localhost:5432/herafino_dev"
+  }
+}

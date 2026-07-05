@@ -1,0 +1,86 @@
+# Harfino Development Environment
+# Docker Compose for local development
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: harfino_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: herafino_dev
+      POSTGRES_USER: herafino
+      POSTGRES_PASSWORD: password
+      TZ: Africa/Cairo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - harfino_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U herafino"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  valkey:
+    image: valkey/valkey:8.0.0
+    container_name: harfino_valkey
+    restart: unless-stopped
+    command: valkey-server --appendonly yes --save 30 1
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey_data:/data
+    networks:
+      - harfino_network
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: harfino_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgres://herafino:password@postgres:5432/herafino_dev
+      DIRECT_URL: postgres://herafino:password@postgres:5432/herafino_dev
+      VALKEY_URL: valkey://valkey:6379
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_WS_URL: ws://localhost:3001
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      SENTRY_DSN: ${SENTRY_DSN}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    networks:
+      - harfino_network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+    driver: local
+  valkey_data:
+    driver: local
+
+networks:
+  harfino_network:
+    driver: bridge
