@@ -1,0 +1,17 @@
+
+> @herafino/web@0.1.0 db:generate
+> drizzle-kit generate
+
+No config path provided, using default 'drizzle.config.json'
+Reading config file '/media/ahmedshawky77/Storage/Herafinho/herafinho/apps/web/drizzle.config.json'
+SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at <anonymous> (/media/ahmedshawky77/Storage/Herafinho/herafinho/packages/shared/node_modules/src/pg-core/indexes.ts:122:27)
+    at Array.map (<anonymous>)
+    at IndexBuilderOn.on (/media/ahmedshawky77/Storage/Herafinho/herafinho/packages/shared/node_modules/src/pg-core/indexes.ts:116:12)
+    at <anonymous> (/media/ahmedshawky77/Storage/Herafinho/herafinho/packages/shared/src/db/schema.ts:261:93)
+    at Object.<anonymous> (/media/ahmedshawky77/Storage/Herafinho/herafinho/packages/shared/src/db/schema.ts:310:70)
+    at Module._compile (node:internal/modules/cjs/loader:1521:14)
+    at Object.transformer (/media/ahmedshawky77/Storage/Herafinho/herafinho/apps/web/node_modules/drizzle-kit/bin.cjs:15008:47)
+    at Module.load (node:internal/modules/cjs/loader:1266:32)
+    at Module._load (node:internal/modules/cjs/loader:1091:12)

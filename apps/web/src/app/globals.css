@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Harfino Global Styles ===== */
+/* Author: Ahmed Shawky */
+/* Description: RTL-first Arabic design system */
+
+/* ===== Base Styles ===== */
+:root {
+  --color-primary: #10b981;
+  --color-primary-50: #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-secondary: #f59e0b;
+  --color-secondary-500: #f59e0b;
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-border: #e2e8f0;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-error: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+
+  --font-arabic: 'Cairo', 'Tajawal', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  border-color: var(--color-surface-border);
+}
+
+html {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  text-align: right;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ===== Custom Component Styles ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: background-color 150ms, color 150ms;
+}
+
+.btn:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background-color: var(--color-primary-500);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-600);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary-500);
+  color: #ffffff;
+}
+
+.btn-outline {
+  border: 1px solid var(--color-surface-border);
+  background-color: transparent;
+}
+
+.btn-outline:hover {
+  background-color: var(--color-surface);
+}
+
+.card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-surface-border);
+  background-color: #ffffff;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.input {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-surface-border);
+  padding: 0.5rem 1rem;
+}
+
+.input:focus {
+  border-color: var(--color-primary-500);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.input:disabled {
+  background-color: var(--color-surface);
+  opacity: 0.5;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.error-message {
+  font-size: 0.875rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+/* ===== Utilities ===== */
+.text-balance {
+  text-wrap: balance;
+}
+
+.rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ===== Map Styles ===== */
+.leaflet-container {
+  border-radius: 0.5rem;
+  z-index: 1;
+}
+
+/* ===== Scrollbar (RTL) ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

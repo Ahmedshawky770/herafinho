@@ -1,0 +1,14 @@
+import * as React from 'react';
+
+function Separator({ className, orientation = 'horizontal', ...props }: React.HTMLAttributes<HTMLDivElement> & { orientation?: 'horizontal' | 'vertical' }) {
+  return (
+    <div
+      role="none"
+      data-orientation={orientation}
+      className={`shrink-0 bg-gray-200 ${orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px'} ${className ?? ''}`}
+      {...props}
+    />
+  );
+}
+
+export { Separator };
