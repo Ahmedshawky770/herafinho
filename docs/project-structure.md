@@ -1,346 +1,181 @@
 # Harfino Project Structure
 
+> **Canonical reference**
+> This document reflects the actual codebase layout. For the original aspirational
+> design see `docs/plan.md`. For an outdated flat-structure sketch see `docs/structure.md` (deprecated).
+
 ```
 herafino/
 ├── .claude/                     # Kilo/AI agent configuration
-│   └── settings.local.json
-├── .kilo/                       # Kilo project specific
 ├── .devcontainer/               # Dev Container configuration
-│   ├── devcontainer.json
-│   └── Dockerfile
 ├── .github/                     # GitHub workflows + templates
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   ├── feature_request.md
-│   │   └── report_abuse.md
-│   └── workflows/
-│       ├── ci.yml              # Lint + Test + Build
-│       ├── cd-preview.yml      # Deploy to Vercel (preview)
-│       └── cd-prod.yml         # Deploy to VPS (production)
 ├── .husky/                      # Git hooks
-│   ├── pre-commit
-│   └── pre-push
-├── docs/                        # Documentation
-│   ├── adr/                     # Architecture Decision Records
-│   │   ├── template.md
-│   │   ├── 001_valkey_over_redis.md
-│   │   ├── 002_modular_monolith.md
-│   │   ├── 003_drizzle_orm.md
-│   │   ├── 004_nextauth.md
-│   │   ├── 005_websocket_vs_sse.md
-│   │   ├── 006_react_query.md
-│   │   ├── 007_postgresql_ssot.md
-│   │   ├── 008_uuids_vs_autoincrement.md
-│   │   ├── 009_bullmq.md
-│   │   ├── 010_zod.md
-│   │   └── 011_docker_strategy.md
-│   ├── troubleshooting/
-│   │   ├── database_migration_failures.md
-│   │   ├── valkey_connection_issues.md
-│   │   ├── websocket_disconnections.md
-│   │   ├── google_oauth_failures.md
-│   │   ├── email_delivery_issues.md
-│   │   └── react_query_stale_data.md
-│   ├── api-contracts/           # OpenAPI + TypeScript types
-│   │   ├── openapi.yaml
-│   │   ├── auth.types.ts
-│   │   ├── craftsman.types.ts
-│   │   └── order.types.ts
-│   ├── diagrams/                # Diagrams (this layer)
-│   │   ├── index.md             # ← You are here
-│   │   ├── c4-l1-system-context.md
-│   │   ├── c4-l2-container-deployment.md
-│   │   ├── c4-l3-component-internal.md
-│   │   ├── erd.md
-│   │   ├── data-flow-onboarding.md
-│   │   ├── data-flow-order.md
-│   │   ├── data-flow-complaint.md
-│   │   ├── seq-google-oauth.md
-│   │   ├── seq-realtime-location.md
-│   │   ├── caching-strategy.md
-│   │   ├── webhook-architecture.md
-│   │   ├── deployment-pipeline.md
-│   │   ├── security-architecture.md
-│   │   ├── monitoring-architecture.md
-│   │   ├── testing-pyramid.md
-│   │   └── user-flows.md
-│   └── plan.md                  # Main project plan (design document)
+├── docs/                        # Comprehensive documentation
 ├── apps/
 │   ├── web/                     # Next.js Fullstack App (RSC + API)
 │   │   ├── src/
 │   │   │   ├── app/              # Next.js App Router (RSC)
-│   │   │   │   ├── (auth)/      # Auth pages groups
-│   │   │   │   │   ├── login/
-│   │   │   │   │   └── onboarding/
-│   │   │   │   ├── (dashboard)/ # Authenticated pages
+│   │   │   │   ├── (auth)/      # Auth route groups
+│   │   │   │   │   └── login/
+│   │   │   │   ├── (dashboard)/ # Authenticated pages (role-based)
+│   │   │   │   │   ├── admin/
 │   │   │   │   │   ├── client/
-│   │   │   │   │   │   ├── orders/
-│   │   │   │   │   │   ├── craftsmen/
-│   │   │   │   │   │   └── reviews/
 │   │   │   │   │   ├── craftsman/
-│   │   │   │   │   │   ├── onboarding/
-│   │   │   │   │   │   ├── orders/
-│   │   │   │   │   │   ├── profile/
-│   │   │   │   │   │   └── status/
-│   │   │   │   │   ├── admin/
-│   │   │   │   │   │   ├── dashboard/
-│   │   │   │   │   │   ├── craftsmen/
-│   │   │   │   │   │   ├── complaints/
-│   │   │   │   │   │   └── users/
+│   │   │   │   │   ├── super_admin/
 │   │   │   │   │   └── layout.tsx
-│   │   │   │   ├── layout.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── components/
-│   │   │   │   ├── ui/           # Shadcn/UI Components
-│   │   │   │   │   ├── button.tsx
-│   │   │   │   │   ├── input.tsx
-│   │   │   │   │   ├── dialog.tsx
-│   │   │   │   │   ├── card.tsx
-│   │   │   │   │   ├── select.tsx
-│   │   │   │   │   ├── toast.tsx
-│   │   │   │   │   └── sonner.tsx
-│   │   │   │   ├── layout/      # Layout (Sidebar, Navbar, MobileMenu)
-│   │   │   │   │   ├── sidebar.tsx
-│   │   │   │   │   ├── navbar.tsx
-│   │   │   │   │   ├── mobile-menu.tsx
-│   │   │   │   │   ├── footer.tsx
-│   │   │   │   │   └── rtl-wrapper.tsx
-│   │   │   │   ├── features/    # Feature-specific Components
+│   │   │   │   ├── api/         # API Route Handlers
 │   │   │   │   │   ├── auth/
-│   │   │   │   │   │   ├── google-signin-button.tsx
-│   │   │   │   │   │   └── auth-guard.tsx
-│   │   │   │   │   ├── craftsman/
-│   │   │   │   │   │   ├── onboarding-wizard.tsx
-│   │   │   │   │   │   ├── craft-type-selector.tsx
-│   │   │   │   │   │   ├── transport-uploader.tsx
-│   │   │   │   │   │   ├── id-card-uploader.tsx
-│   │   │   │   │   │   ├── availability-toggle.tsx
-│   │   │   │   │   │   └── location-map.tsx
-│   │   │   │   │   ├── orders/
-│   │   │   │   │   │   ├── create-order-modal.tsx
-│   │   │   │   │   │   ├── order-card.tsx
-│   │   │   │   │   │   ├── active-order-map.tsx
-│   │   │   │   │   │   └── order-timeline.tsx
-│   │   │   │   │   ├── reviews/
-│   │   │   │   │   │   ├── review-form.tsx
-│   │   │   │   │   │   └── review-card.tsx
-│   │   │   │   │   ├── complaints/
-│   │   │   │   │   │   ├── complaint-form.tsx
-│   │   │   │   │   │   └── complaint-timeline.tsx
-│   │   │   │   │   ├── locations/
-│   │   │   │   │   │   ├── map-component.tsx
-│   │   │   │   │   │   ├── nearby-craftsmen-list.tsx
-│   │   │   │   │   │   └── craftsman-marker.tsx
 │   │   │   │   │   ├── admin/
-│   │   │   │   │   │   ├── review-queue.tsx
-│   │   │   │   │   │   ├── moderation-form.tsx
-│   │   │   │   │   │   ├── stats-cards.tsx
-│   │   │   │   │   │   └── user-management-table.tsx
-│   │   │   │   │   └── notifications/
-│   │   │   │   │       ├── notification-queue.tsx
-│   │   │   │   │       └── notification-item.tsx
-│   │   │   │   └── providers/
-│   │   │   │       ├── query-provider.tsx  # React Query
-│   │   │   │       ├── auth-provider.tsx   # NextAuth Session
-│   │   │   │       ├── theme-provider.tsx  # Dark mode
-│   │   │   │       ├── toast-provider.tsx  # Toast notifications
-│   │   │   │       └── ws-provider.tsx     # WebSocket Context
-│   │   │   ├── features/         # Feature Modules (DDD-ish)
+│   │   │   │   │   ├── complaints/
+│   │   │   │   │   ├── craftsmen/
+│   │   │   │   │   ├── health/
+│   │   │   │   │   ├── locations/
+│   │   │   │   │   ├── notifications/
+│   │   │   │   │   ├── orders/
+│   │   │   │   │   ├── reviews/
+│   │   │   │   │   ├── search/
+│   │   │   │   │   ├── super-admin/
+│   │   │   │   │   ├── upload/
+│   │   │   │   │   └── webhooks/
+│   │   │   │   ├── craftsmen/[id]/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── orders/new/
+│   │   │   │   ├── search/
+│   │   │   │   ├── unauthorized/
+│   │   │   │   ├── layout.tsx   # Root layout (RTL, fonts, providers)
+│   │   │   │   ├── loading.tsx
+│   │   │   │   ├── error.tsx
+│   │   │   │   ├── global-error.tsx
+│   │   │   │   ├── not-found.tsx
+│   │   │   │   ├── auth.ts      # NextAuth configuration export
+│   │   │   │   └── page.tsx    # Landing page
+│   │   │   ├── components/
+│   │   │   │   ├── ui/           # Shadcn/UI primitives (~28 components)
+│   │   │   │   ├── features/    # Presentational components
+│   │   │   │   │   ├── layout/  # Sidebar, mobile-menu, top-bar
+│   │   │   │   │   ├── auth/
+│   │   │   │   │   │   └── google-signin-button.tsx
+│   │   │   │   │   ├── craftsman/   # (planned)
+│   │   │   │   │   ├── orders/      # (planned)
+│   │   │   │   │   ├── reviews/     # (planned)
+│   │   │   │   │   ├── complaints/  # (planned)
+│   │   │   │   │   ├── locations/   # (planned)
+│   │   │   │   │   ├── admin/       # (planned)
+│   │   │   │   │   └── search/      # (planned)
+│   │   │   │   ├── providers/
+│   │   │   │   │   ├── providers.tsx
+│   │   │   │   │   ├── query-provider.tsx
+│   │   │   │   │   ├── theme-provider.tsx
+│   │   │   │   │   ├── toast-provider.tsx
+│   │   │   │   │   └── auth-provider.tsx
+│   │   │   │   └── landing-page.tsx
+│   │   │   ├── middleware.ts      # Next.js auth middleware
+│   │   │   ├── features/         # Domain Feature Modules (DDD-style)
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── auth/         # (planned)
+│   │   │   │   ├── complaint/    # (index + sub-routes)
+│   │   │   │   ├── craftsman/    # (index + sub-routes)
+│   │   │   │   ├── order/        # (index + sub-routes)
+│   │   │   │   ├── reviews/      # (planned)
+│   │   │   │   ├── locations/    # (planned)
+│   │   │   │   ├── notifications/ # (planned)
+│   │   │   │   └── admin/        # (planned)
+│   │   │   ├── hooks/            # Shared custom hooks
+│   │   │   │   └── index.ts
+│   │   │   ├── lib/             # Foundation / Core Libraries
 │   │   │   │   ├── auth/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   ├── use-auth.ts
-│   │   │   │   │   │   ├── use-current-user.ts
-│   │   │   │   │   │   └── use-oauth-signin.ts
-│   │   │   │   │   ├── schemas/
-│   │   │   │   │   │   └── auth.schema.ts
-│   │   │   │   │   ├── services/
-│   │   │   │   │   │   └── auth.service.ts
-│   │   │   │   │   ├── actions/
-│   │   │   │   │   │   ├── sign-in.ts
-│   │   │   │   │   │   ├── sign-out.ts
-│   │   │   │   │   │   └── refresh-session.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       └── auth.types.ts
-│   │   │   │   ├── craftsman/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   ├── use-craftsman-profile.ts
-│   │   │   │   │   │   ├── use-craftsman-orders.ts
-│   │   │   │   │   │   ├── use-craftsman-location.ts
-│   │   │   │   │   │   └── use-craftsman-cards.ts
-│   │   │   │   │   ├── schemas/
-│   │   │   │   │   │   └── craftsman.schema.ts
-│   │   │   │   │   ├── services/
-│   │   │   │   │   │   ├── craftsman.service.ts
-│   │   │   │   │   │   └── upload.service.ts
-│   │   │   │   │   ├── actions/
-│   │   │   │   │   │   ├── submit-profile.ts
-│   │   │   │   │   │   ├── toggle-availability.ts
-│   │   │   │   │   │   └── upload-documents.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       ├── craftsman.types.ts
-│   │   │   │   │       └── onboarding.types.ts
-│   │   │   │   ├── orders/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   ├── use-orders.ts
-│   │   │   │   │   │   ├── use-active-order.ts
-│   │   │   │   │   │   └── use-create-order.ts
-│   │   │   │   │   ├── schemas/
-│   │   │   │   │   │   └── order.schema.ts
-│   │   │   │   │   ├── services/
-│   │   │   │   │   │   └── order.service.ts
-│   │   │   │   │   ├── actions/
-│   │   │   │   │   │   ├── create-order.ts
-│   │   │   │   │   │   ├── accept-order.ts
-│   │   │   │   │   │   ├── reject-order.ts
-│   │   │   │   │   │   └── complete-order.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       └── order.types.ts
-│   │   │   │   ├── reviews/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   └── use-reviews.ts
-│   │   │   │   │   ├── actions/
-│   │   │   │   │   │   └── submit-review.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       └── review.types.ts
-│   │   │   │   ├── complaints/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   └── use-complaints.ts
-│   │   │   │   │   ├── actions/
-│   │   │   │   │   │   └── file-complaint.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       └── complaint.types.ts
-│   │   │   │   ├── locations/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   ├── use-location.ts
-│   │   │   │   │   │   ├── use-nearby-craftsmen.ts
-│   │   │   │   │   │   └── use-craftsman-position.ts
-│   │   │   │   │   ├── services/
-│   │   │   │   │   │   ├── geolocation.service.ts
-│   │   │   │   │   │   └── maps.service.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       └── location.types.ts
-│   │   │   │   ├── notifications/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   └── use-notifications.ts
-│   │   │   │   │   ├── services/
-│   │   │   │   │   │   └── notification.service.ts
-│   │   │   │   │   └── types/
-│   │   │   │   │       └── notification.types.ts
-│   │   │   │   └── admin/
-│   │   │   │       ├── hooks/
-│   │   │   │       │   ├── use-admin-stats.ts
-│   │   │   │       │   ├── use-admin-craftsmen.ts
-│   │   │   │       │   └── use-admin-complaints.ts
-│   │   │   │       └── types/
-│   │   │   │           └── admin.types.ts
-│   │   │   ├── lib/                 # Library / Foundation
-│   │   │   │   ├── auth/
-│   │   │   │   │   ├── options.ts         # NextAuth configuration
-│   │   │   │   │   ├── middleware.ts       # Server-side auth middleware
-│   │   │   │   │   └── jwt.ts            # JWT utilities
+│   │   │   │   │   ├── options.ts   # NextAuth configuration
+│   │   │   │   │   ├── jwt.ts      # JWT utilities
+│   │   │   │   │   └── middleware.ts # Auth middleware
+│   │   │   │   ├── cache/
+│   │   │   │   │   ├── cache-service.ts
+│   │   │   │   │   ├── cache-event-handler.ts
+│   │   │   │   │   ├── cache-invalidation.ts
+│   │   │   │   │   ├── cache-keys.ts
+│   │   │   │   │   ├── rate-limit.middleware.ts
+│   │   │   │   │   ├── rate-limit.service.ts
+│   │   │   │   │   └── repositories/
+│   │   │   │   ├── config/
+│   │   │   │   │   └── env.ts
 │   │   │   │   ├── db/
-│   │   │   │   │   ├── schema.ts          # Drizzle ORM Schema
-│   │   │   │   │   ├── index.ts           # Database connection
-│   │   │   │   │   ├── migrations/        # Drizzle auto-generated
-│   │   │   │   │   └── seed.rs          # Seed data (Arabic tady)
-│   │   │   │   ├── valkey/
-│   │   │   │   │   ├── client.ts          # Valkey connection
-│   │   │   │   │   ├── cache.service.ts   # Cache abstraction
-│   │   │   │   │   ├── rate-limiter.ts    # Rate limiting
-│   │   │   │   │   └── distributed-lock.ts # SETNX locks
-│   │   │   │   ├── logger/
-│   │   │   │   │   ├── factory.ts         # Pino factory
-│   │   │   │   │   └── index.ts
+│   │   │   │   │   ├── schema.ts    # Drizzle ORM Schema
+│   │   │   │   │   ├── index.ts     # Database connection
+│   │   │   │   │   ├── migrations/  # Drizzle auto-generated
+│   │   │   │   │   ├── repositories/
+│   │   │   │   │   └── seed.ts
 │   │   │   │   ├── errors/
 │   │   │   │   │   ├── app-error.ts
 │   │   │   │   │   ├── not-found-error.ts
 │   │   │   │   │   ├── conflict-error.ts
 │   │   │   │   │   ├── unauthorized-error.ts
 │   │   │   │   │   └── forbidden-error.ts
-│   │   │   │   ├── types/
-│   │   │   │   │   ├── index.ts          # Unified types export
-│   │   │   │   │   ├── user.types.ts
-│   │   │   │   │   ├── craftsman.types.ts
-│   │   │   │   │   ├── order.types.ts
-│   │   │   │   │   ├── review.types.ts
-│   │   │   │   │   ├── complaint.types.ts
-│   │   │   │   │   ├── location.types.ts
-│   │   │   │   │   ├── notification.types.ts
-│   │   │   │   │   ├── api.types.ts
-│   │   │   │   │   ├── pagination.types.ts
-│   │   │   │   │   └── validation.types.ts
-│   │   │   │   ├── contracts/       # Interfaces between modules
-│   │   │   │   │   ├── i-user-repository.ts
-│   │   │   │   │   ├── i-craftsman-repository.ts
-│   │   │   │   │   ├── i-order-repository.ts
-│   │   │   │   │   ├── i-review-repository.ts
-│   │   │   │   │   ├── i-complaint-repository.ts
-│   │   │   │   │   ├── i-notification-service.ts
-│   │   │   │   │   ├── i-email-service.ts
-│   │   │   │   │   ├── i-location-service.ts
-│   │   │   │   │   ├── i-cache-service.ts
-│   │   │   │   │   ├── i-audit-service.ts
-│   │   │   │   │   ├── i-websocket-service.ts
-│   │   │   │   │   └── i-webhook-dispatcher.ts
-│   │   │   │   └── utils/
-│   │   │   │       ├── constants.ts   # Constants (craft types, etc.)
-│   │   │   │       ├── helpers.ts
-│   │   │   │       ├── formatters.ts
-│   │   │   │       ├── validators.ts
-│   │   │   │       ├── parsers/       # JSON, URL parsers
-│   │   │   │       ├── errors/        # Error utilities
-│   │   │   │       ├── dates/         # Date formatting (Arabic)
-│   │   │   │       ├── encryption/    # Encrypt/decrypt utilities
-│   │   │   │       └── fetch/         # Fetch with retries
-│   │   │   └── styles/
-│   │   │       ├── globals.css        # Tailwind + @layer utilities
-│   │   │       ├── rtl.css
-│   │   │       ├── fonts.css          # Cairo + Tajawal fonts
-│   │   │       └── animations.css
-│   │   ├── public/                   # Static assets
-│   │   │   ├── favicon.ico
-│   │   │   ├── icons/                 # PWA icons (512x512)
-│   │   │   │   ├── icon-192x192.png
-│   │   │   │   ├── icon-512x512.png
-│   │   │   │   └── apple-touch-icon.png
-│   │   │   ├── images/
-│   │   │   │   ├── placeholder.png
-│   │   │   │   └── og-image.png
-│   │   │   ├── manifest.json          # PWA manifest
-│   │   │   └── robots.txt
+│   │   │   │   ├── events/
+│   │   │   │   │   ├── valkey-event-bus.ts
+│   │   │   │   │   ├── outbox-processor.ts
+│   │   │   │   │   ├── outbox-repository.ts
+│   │   │   │   │   ├── event-bus.ts
+│   │   │   │   │   ├── webhook-dispatcher.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── http/
+│   │   │   │   │   └── error-handler.ts
+│   │   │   │   ├── logger/
+│   │   │   │   │   └── factory.ts  # Pino logger factory
+│   │   │   │   ├── storage/
+│   │   │   │   │   ├── storage-service.ts
+│   │   │   │   │   ├── local-storage.ts
+│   │   │   │   │   ├── types.ts
+│   │   │   │   │   ├── upload-helper.ts
+│   │   │   │   │   └── validation.ts
+│   │   │   │   ├── utils.ts
+│   │   │   │   ├── validation/     # Zod schemas
+│   │   │   │   │   ├── onboarding.schema.ts
+│   │   │   │   │   ├── order.schema.ts
+│   │   │   │   │   ├── complaint.schema.ts
+│   │   │   │   │   ├── location.schema.ts
+│   │   │   │   │   └── order.validation.ts
+│   │   │   │   └── valkey/
+│   │   │   │       ├── client.ts
+│   │   │   │       └── index.ts
+│   │   │   └── ws/
+│   │   │       ├── index.ts        # WebSocket server startup
+│   │   │       └── server.ts
+│   │   ├── public/
+│   │   ├── components.json
+│   │   ├── drizzle.config.json
+│   │   ├── eslint.config.mjs
+│   │   ├── next.config.ts
+│   │   ├── package.json
+│   │   ├── postcss.config.mjs
+│   │   ├── sentry.client.config.ts
+│   │   ├── sentry.server.config.ts
 │   │   ├── tailwind.config.ts
-│   │   ├── postcss.config.js
-│   │   ├── next.config.js
-│   │   ├── tsconfig.json
-│   │   ├── eslint.config.js
-│   │   ├── prettier.config.js
-│   │   └── package.json
-│   └── workers/                 # Background Workers (Celery-style BullMQ)
+│   │   └── tsconfig.json
+│   └── workers/                 # Background Workers (BullMQ)
 │       ├── src/
-│       │   ├── jobs/             # Background job tasks
-│       │   │   ├── send-welcome-email.ts
-│       │   │   ├── send-rejection-email.ts
-│       │   │   ├── send-notification-email.ts
-│       │   │   ├── send-order-notification.ts
-│       │   │   ├── process-complaint.ts
-│       │   │   ├── process-webhook-retry.ts
-│       │   │   ├── cleanup-old-data.ts
-│       │   │   ├── generate-reports.ts
+│       │   ├── index.ts
+│       │   ├── worker.ts
+│       │   ├── processors/
+│       │   │   ├── email.processor.ts
+│       │   │   ├── notification-processor.ts
+│       │   │   ├── order-processor.ts
+│       │   │   ├── order-timeout.processor.ts
+│       │   │   ├── webhook.processor.ts
 │       │   │   └── index.ts
-│       │   ├── queues/            # Queue processors
-│       │   │   ├── email.queue.ts
-│       │   │   ├── notification.queue.ts
-│       │   │   ├── webhook.queue.ts
-│       │   │   └── analytics.queue.ts
 │       │   ├── services/
-│       │   │   ├── email.worker.service.ts
-│       │   │   ├── notification.worker.service.ts
-│       │   │   ├── webhook.worker.service.ts
-│       │   │   └── scheduler.worker.service.ts
-│       │   └── index.ts           # Worker entry point
+│       │   │   ├── notification-service.ts
+│       │   │   └── audit-log-service.ts
+│       │   ├── email/
+│       │   │   └── resend-email-service.ts
+│       │   └── event-handlers/
+│       │       ├── index.ts
+│       │       ├── craftsman.handlers.ts
+│       │       ├── order.handlers.ts
+│       │       ├── review.handler.ts
+│       │       ├── complaint.handlers.ts
+│       │       └── admin.handler.ts
 │       └── package.json
 ├── packages/
-│   ├── types/                   # Shared Types (SSOT)
+│   ├── types/                    # Shared Types (SSOT)
 │   │   ├── src/
 │   │   │   ├── user.types.ts
 │   │   │   ├── craftsman.types.ts
@@ -349,12 +184,10 @@ herafino/
 │   │   │   ├── complaint.types.ts
 │   │   │   ├── location.types.ts
 │   │   │   ├── notification.types.ts
-│   │   │   ├── api.types.ts
-│   │   │   ├── pagination.types.ts
-│   │   │   ├── validation.types.ts
-│   │   │   ├── job.types.ts
+│   │   │   ├── event.types.ts
 │   │   │   └── index.ts
-│   │   └── package.json
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   ├── contracts/               # Interfaces (Contracts between modules)
 │   │   ├── src/
 │   │   │   ├── i-user-repository.ts
@@ -367,38 +200,74 @@ herafino/
 │   │   │   ├── i-location-service.ts
 │   │   │   ├── i-cache-service.ts
 │   │   │   ├── i-audit-service.ts
-│   │   │   ├── i-audit-service.ts
-│   │   │   ├── i-cache-service.ts
 │   │   │   ├── i-websocket-service.ts
-│   │   │   └── i-webhook-dispatcher.ts
-│   │   └── package.json
-│   └── config/                  # Shared Configuration
-│       ├── src/
-│       │   ├── env.ts           # Env validation (zod)
-│       │   ├── valkey.ts        # Valkey client config
-│       │   ├── logger.ts        # Logger factory config
-│       │   ├── drizzle.ts        # Drizzle config
-│       │   └── index.ts
-│       └── package.json
+│   │   │   ├── i-webhook-dispatcher.ts
+│   │   │   ├── i-event-bus.ts    # Event bus interface
+│   │   │   ├── i-event-handler.ts # Event handler interface
+│   │   │   ├── i-outbox-repository.ts # Outbox pattern repository
+│   │   │   └── index.ts
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   └── shared/                   # Shared implementations
+│       ├── package.json
+│       ├── tsconfig.json
+│       └── src/
+│           ├── index.ts
+│           ├── cache/            # Cache strategies + invalidation
+│           │   ├── cache-service.ts
+│           │   ├── cache-event-handler.ts
+│           │   ├── cache-invalidation.ts
+│           │   └── cache-keys.ts
+│           ├── db/               # Shared DB connection + schema
+│           │   ├── schema.ts
+│           │   └── index.ts
+│           ├── events/           # Event Bus + Outbox pattern
+│           │   ├── valkey-event-bus.ts
+│           │   ├── outbox-processor.ts
+│           │   └── outbox-repository.ts
+│           ├── logger/
+│           │   └── factory.ts    # Pino logger factory
+│           ├── repositories/     # Generic repositories
+│           │   ├── user.repository.ts
+│           │   ├── craftsman.repository.ts
+│           │   ├── order.repository.ts
+│           │   ├── review.repository.ts
+│           │   └── complaint.repository.ts
+│           ├── services/         # Shared services
+│           │   ├── email.service.ts
+│           │   ├── notification.service.ts
+│           │   ├── audit.service.ts
+│           │   ├── location.service.ts
+│           │   ├── webhook.service.ts
+│           │   └── websocket.service.ts
+│           └── valkey/
+│               └── client.ts
+├── tests/                        # Test Suite
+│   ├── unit/
+│   ├── integration/
+│   ├── setup.ts
+│   └── vitest.setup.ts
 ├── docker-compose.yml            # Development
 ├── docker-compose.prod.yml       # Production
 ├── Dockerfile                    # Next.js App (multi-stage)
 ├── Dockerfile.worker             # Background Worker
 ├── Dockerfile.postgres           # PostgreSQL init script
-├── redis-config.conf             # Valkey configuration
 ├── .env.example                  # Environment template
-├── .env.local                    # Local secrets (gitignored)
 ├── .env.test                     # Test environment
-├── .eslintrc.js                  # ESLint config
+├── .eslintrc.js                  # ESLint config (fallback)
 ├── .prettierrc                   # Prettier config
 ├── .gitignore
 ├── .editorconfig                 # Editor consistency
 ├── tsconfig.json                 # Root TypeScript config
+├── turbo.json                    # Turborepo config
 ├── package.json                  # Root monorepo package.json
-├── turbo.json                    # Turborepo config (if used)
+├── package-lock.json
+├── vite.config.ts                # Root Vitest/Vite aliases
+├── vitest.config.ts
+├── playwright.config.ts
 ├── LICENSE                        # MIT License (with Egyptian attribution)
 ├── README.md                     # Project README
-└── PLAN.md                       # → docs/plan.md (project plan)
+└── PLAN.md                       # → docs/plan.md (symlink reference)
 ```
 
 ---
@@ -408,98 +277,91 @@ herafino/
 | Decision | Rationale |
 |----------|-----------|
 | **apps/web** | Single Next.js app (not separate frontend/backend) — easier deployment |
-| **apps/workers** | Background jobs separated from web for scaling |
-| **packages/types** | Single source of truth for types (SSOT) |
+| **apps/workers** | Background jobs separated from web for independent scaling |
+| **packages/types** | Single source of truth for domain types (SSOT) |
 | **packages/contracts** | Interfaces between modules (Loose Coupling) |
-| **apps/web/src/features** | Feature-based organization (not tech-based) |
+| **packages/shared** | Shared services, event bus, cache, DB connection, repositories |
+| **apps/web/src/features** | Feature slices (complaint, craftsman, order implemented; others planned) |
 | **apps/web/src/lib** | Foundation layer (no business logic here) |
-| **docs/adr** | Architecture Decision Records for every major choice |
-| **docs/diagrams** | C4 Model + Sequence + Data Flow |
+| **middleware.ts** | Next.js middleware inside the web app (`apps/web/src/middleware.ts`) |
+| **docs/adr** | Architecture Decision Records (11 ADRs covering adopted + planned decisions) |
+| **docs/diagrams** | C4 Model + Sequence + Data Flow diagrams |
 | **docker-compose.prod.yml** | Production-grade compose (secrets, health checks) |
 | **.github** | CI/CD pipelines |
 | **.husky** | Git hooks for lint + format before commit |
+| **Tailwind CSS v4** | Modern utility-first CSS with RTL & Arabic font support |
+| **ESLint flat config** | Modern ESLint v9 with `eslint.config.mjs` in web app |
+| **Vitest** | Fast unit & integration testing with jsdom environment |
 
 ---
 
-## package.json Scripts
+## package.json Scripts (Root)
 
 ```json
 {
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint --fix",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:watch": "vitest watch",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration",
-    "test:e2e": "playwright test",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "test:all": "turbo run test:unit && turbo run test:integration",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:seed": "turbo run db:seed",
+    "db:studio": "turbo run db:studio",
     "docker:dev": "docker compose up -d postgres valkey",
-    "docker:prod": "docker compose -f docker-compose.prod.yml up -d",
-    "db:generate": "drizzle-kit generate:pg",
-    "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx apps/web/src/lib/db/seed.ts",
-    "db:studio": "drizzle-kit studio",
-    "worker:dev": "tsx apps/workers/src/index.ts",
-    "worker:prod": "node dist/workers/index.js",
-    "preview": "npm run build && npm run start",
-    "adr:new": "npx adr-tools new"
+    "docker:down": "docker compose down",
+    "worker": "turbo run worker",
+    "worker:dev": "turbo run worker:dev",
+    "ws": "turbo run ws",
+    "ws:dev": "turbo run ws:dev"
   }
 }
 ```
 
 ---
 
-## Turborepo Monorepo (Alternative)
+## apps/web package.json (Selected Scripts)
 
-```
-herafino/
-├── package.json           # Root
-├── turbo.json
-├── apps/
-│   ├── web/
-│   └── workers/
-├── packages/
-│   ├── types/
-│   ├── contracts/
-│   ├── config/
-│   └── ui/                # Shared UI components (Shadcn/UI lib)
-├── tools/
-│   ├── eslint-plugin/     # Custom ESLint rules
-│   └── ci/
-└── docker-compose.yml
+```json
+{
+  "scripts": {
+    "dev": "next dev --turbo -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/lib/db/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "ws": "tsx src/ws/index.ts",
+    "ws:dev": "tsx --watch src/ws/index.ts"
+  }
+}
 ```
 
 ---
 
-## Shared UI Components (Optional)
+## apps/workers package.json
 
-```
-packages/ui/
-├── src/
-│   ├── components/
-│   │   ├── ui/
-│   │   │   ├── button.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── dialog.tsx
-│   │   │   ├── map.tsx          # Google Maps wrapper
-│   │   │   ├── location-picker.tsx
-│   │   │   └── rating-stars.tsx
-│   │   ├── layout/
-│   │   │   ├── sidebar.tsx
-│   │   │   ├── navbar.tsx
-│   │   │   └── rtl-provider.tsx
-│   │   └── features/
-│   │       ├── craftsman-card.tsx
-│   │       └── order-timeline.tsx
-│   └── lib/
-│       ├── utils.ts
-│       └── hooks/
-│           └── use-geolocation.ts
-├── package.json
-└── README.md
+```json
+{
+  "scripts": {
+    "worker": "tsx src/index.ts",
+    "worker:dev": "tsx --watch src/index.ts"
+  }
+}
 ```
 
 ---
@@ -508,22 +370,22 @@ packages/ui/
 
 ```
 docs/
-├── README.md                     # Documentation index
-├── plan.md                       # ← Main project plan (you are here)
+├── README.md
+├── plan.md                       ← Main project plan (technical specification)
 ├── adr/
-│   ├── README.md                 # ADR index
+│   ├── README.md
+│   ├── template.md
 │   ├── 001_valkey_over_redis.md
-│   ├── 002_modular_monolith.md
-│   ├── 003_drizzle_orm.md
-│   ├── 004_nextauth.md
+│   ├── 002_why_modular_monolith.md
+│   ├── 003_why_drizzle_orm.md
+│   ├── 004_why_nextauth.md
 │   ├── 005_websocket_vs_sse.md
 │   ├── 006_react_query.md
 │   ├── 007_postgresql_ssot.md
 │   ├── 008_uuids_vs_autoincrement.md
 │   ├── 009_bullmq.md
 │   ├── 010_zod.md
-│   ├── 011_docker_strategy.md
-│   └── template.md
+│   └── 011_docker_strategy.md
 ├── troubleshooting/
 │   ├── database_migration_failures.md
 │   ├── valkey_connection_issues.md
@@ -532,51 +394,9 @@ docs/
 │   ├── email_delivery_issues.md
 │   └── react_query_stale_data.md
 ├── api-contracts/
-│   ├── openapi.yaml
-│   ├── auth.types.ts
-│   ├── craftsman.types.ts
-│   ├── order.types.ts
-│   ├── review.types.ts
-│   └── complaint.types.ts
+│   └── openapi.yaml        # Hand-written API spec; canonical Zod types live in packages/types (duplicated *.types.ts removed)
 ├── diagrams/
-│   ├── index.md
-│   ├── c4-l1-system-context.md
-│   ├── c4-l2-container-deployment.md
-│   ├── c4-l3-component-internal.md
-│   ├── erd.md
-│   ├── data-flow-onboarding.md
-│   ├── data-flow-order.md
-│   ├── data-flow-complaint.md
-│   ├── seq-google-oauth.md
-│   ├── seq-realtime-location.md
-│   ├── caching-strategy.md
-│   ├── webhook-architecture.md
-│   ├── deployment-pipeline.md
-│   ├── security-architecture.md
-│   ├── monitoring-architecture.md
-│   ├── testing-pyramid.md
-│   └── user-flows.md
-├── api-design/
-│   ├── rest-api.md
-│   ├── websocket-api.md
-│   └── errors.md
-└── runbooks/
-    ├── incident-response.md
-    ├── deployment.md
-    └── rollback.md
 ```
-
----
-
-## Shared Libraries (Optional Extras)
-
-| Library | Path | Purpose |
-|---------|------|---------|
-| **@herafino/ui** | `packages/ui/` | Shared React components |
-| **@herafino/types** | `packages/types/` | Shared TypeScript types |
-| **@herafino/config** | `packages/config/` | Shared env/config |
-| **@herafino/logger** | `packages/logger/` | Pino logger factory |
-| **@herafino/test** | `packages/test/` | Test helpers + factories |
 
 ---
 
@@ -633,7 +453,8 @@ chore: bump Next.js to 14.2.0
 ---
 
 ## Related Documents
-- [Plan](plan.md)
-- [ADR Template](adr/template.md)
-- [Testing Pyramid](diagrams/testing-pyramid.md)
-- [C4 L3 - Component](diagrams/c4-l3-component-internal.md)
+- [Plan](docs/plan.md)
+- [ADR Template](docs/adr/template.md)
+- [Testing Pyramid](docs/diagrams/testing-pyramid.md)
+- [C4 L3 - Component](docs/diagrams/c4-l3-component-internal.md)
+- [User Flows](docs/diagrams/user-flows.md)

@@ -17,7 +17,7 @@ export type CraftType =
 
 export type TransportType = 'bike' | 'walking' | 'car' | 'minivan';
 
-export type CraftsmanStatus = 'pending' | 'approved' | 'rejected' | 'frozen';
+export type CraftsmanStatus = 'pending' | 'approved' | 'rejected' | 'frozen' | 'banned';
 
 export type OrderStatus =
   | 'pending'

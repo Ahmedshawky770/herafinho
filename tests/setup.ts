@@ -1,7 +1,10 @@
-import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
-afterEach(() => {
-  cleanup();
-});
+try {
+  const { cleanup } = require('@testing-library/react');
+  afterEach(() => {
+    cleanup();
+  });
+} catch {
+  // @testing-library/react is not installed at the root level
+}

@@ -12,7 +12,7 @@ Harfino is a Next.js-based modular monolith platform that enables:
 - Complaint handling with automated 3-strike ban policy
 - Admin dashboard for moderation
 
-**Stack**: Next.js 14 (App Router) + PostgreSQL + Valkey (Redis-compatible) + BullMQ + NextAuth v5 + React Query
+**Stack**: Next.js 16 (App Router) + PostgreSQL + Valkey (Redis-compatible) + BullMQ + NextAuth v4 + React Query
 
 ## Prerequisites
 
@@ -53,10 +53,11 @@ npm run worker:dev # Background workers
 ## Documentation
 
 - [Project Plan](docs/plan.md) - Complete technical specification and roadmap
+- [Project Structure](docs/project-structure.md) - **Canonical** codebase organization
 - [Architecture Decision Records](docs/adr/) - Architectural decisions and rationale
-- [Project Structure](docs/project-structure.md) - Codebase organization
 - [Architecture Diagrams](docs/diagrams/) - C4 model, ERD, sequence diagrams
 - [Troubleshooting](docs/troubleshooting/) - Common issues and solutions
+- Legacy docs: [Outdated structure sketch](docs/structure.md) (deprecated)
 
 ## Available Scripts
 

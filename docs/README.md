@@ -48,7 +48,7 @@ Technical documentation for the Harfino craftsman marketplace platform.
 ## API Contracts
 
 - [OpenAPI Specification](api-contracts/openapi.yaml)
-- Type definitions in [packages/types/](../packages/types/src)
+- Canonical type definitions live in [packages/types/](../packages/types/src) — this is the single source of truth for Zod types (the former `api-contracts/*.types.ts` duplicates were removed).
 
 ## Support
 

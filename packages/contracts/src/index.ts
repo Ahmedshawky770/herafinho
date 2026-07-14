@@ -10,3 +10,8 @@ export * from './i-cache-service';
 export * from './i-audit-service';
 export * from './i-websocket-service';
 export * from './i-webhook-dispatcher';
+export * from './i-event-handler';
+export * from './i-outbox-repository';
+export * from './i-event-bus';
+export * from './i-location-repository';
+export * from './i-storage-service';

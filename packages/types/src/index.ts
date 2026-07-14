@@ -5,3 +5,4 @@ export * from './review.types';
 export * from './complaint.types';
 export * from './notification.types';
 export * from './location.types';
+export * from './event.types';

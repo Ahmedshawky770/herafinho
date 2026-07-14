@@ -1,8 +1,0 @@
-{
-  "schema": "../../packages/shared/src/db/schema.ts",
-  "out": "../../packages/shared/src/db/migrations",
-  "dialect": "postgresql",
-  "dbCredentials": {
-    "url": "postgres://herafino:password@localhost:5432/herafino_dev"
-  }
-}

@@ -1,0 +1,1 @@
+export type UploadFileType = 'id_card' | 'transport_photo' | 'face_photo' | 'avatar';

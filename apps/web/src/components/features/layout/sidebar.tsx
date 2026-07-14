@@ -49,12 +49,12 @@ export function Sidebar() {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
-              <Link key={item.href} href={item.href} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-50', isActive ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700')} children={
+              <Link key={item.href} href={item.href} className={cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-50', isActive ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700')}>
                 <span className="flex items-center gap-3">
                   <Icon className="size-4" />
                   {item.label}
                 </span>
-              } />
+              </Link>
             );
           })}
         </nav>

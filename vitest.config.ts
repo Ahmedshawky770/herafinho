@@ -23,9 +23,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './apps/web/src'),
       '@herafino/types': path.resolve(__dirname, './packages/types/src'),
       '@herafino/contracts': path.resolve(__dirname, './packages/contracts/src'),
+      '@herafino/shared': path.resolve(__dirname, './packages/shared/src'),
     },
   },
 });

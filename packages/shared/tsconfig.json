@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@herafino/types": ["../types/src/index.ts"],
+      "@herafino/contracts": ["../contracts/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "../types/src/**/*", "../contracts/src/**/*"],
+  "exclude": ["node_modules"]
+}

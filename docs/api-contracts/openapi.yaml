@@ -11,38 +11,25 @@ servers:
     description: Development server
 
 paths:
-  /auth/login:
-    post:
-      summary: Initiate Google OAuth login
-      tags: [Auth]
-      responses:
-        '302':
-          description: Redirect to Google OAuth
-
-  /auth/callback/google:
+  /api/auth/[...nextauth]:
     get:
-      summary: Google OAuth callback handler
+      summary: NextAuth handler (providers, session, callbacks)
+      tags: [Auth]
+      responses:
+        '200':
+          description: Auth handler response
+        '302':
+          description: Redirect to Google OAuth or callback target
+    post:
+      summary: NextAuth CSRF/callback handler
       tags: [Auth]
       responses:
         '302':
-          description: Redirect to appropriate dashboard
+          description: Redirect after auth exchange
         '401':
           description: Authentication failed
 
-  /auth/session:
-    get:
-      summary: Get current session
-      tags: [Auth]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '200':
-          description: Session data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Session'
-
-  /auth/logout:
+  /api/auth/signout:
     post:
       summary: Sign out user
       tags: [Auth]

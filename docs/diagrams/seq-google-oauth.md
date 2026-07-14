@@ -4,7 +4,7 @@
 sequenceDiagram
     actor Client
     participant NextApp as Next.js (Frontend)
-    participant NextAuth as NextAuth v5
+    participant NextAuth as NextAuth v4
     participant Google as Google OAuth 2.0
     participant AppDB as PostgreSQL
     participant Valkey as Valkey (Session)

@@ -41,7 +41,7 @@
 
 **Harfino** is an Egyptian craftsmen-to-client marketplace platform (an "Uber for blue-collar trades"). It connects verified tradespeople — carpenters, plumbers, electricians, etc. — with clients who need services, with location-aware realtime tracking, reviews, moderation, and a full admin pipeline.
 
-**Architecture**: Modular Monolith on **Next.js 14+ App Router**, **PostgreSQL (Drizzle ORM)** as SSOT, **Valkey** (Redis-compatible) for cache + distributed queue, **BullMQ** for background jobs, **NextAuth + Google OAuth** for auth, **React Query** for client state, **WebSocket** for realtime location, **Tailwind CSS** for styling with custom `global.css`, and **PWA** for mobile installability.
+**Architecture**: Modular Monolith on **Next.js 16+ App Router**, **PostgreSQL (Drizzle ORM)** as SSOT, **Valkey** (Redis-compatible) for cache + distributed queue, **BullMQ** for background jobs, **NextAuth + Google OAuth** for auth, **React Query** for client state, **WebSocket** for realtime location, **Tailwind CSS** for styling with custom `global.css`, and **PWA** for mobile installability.
 
 **Deployment**: Docker Compose (local), Docker Swarm / VPS (production), GitHub Actions CI/CD.
 
@@ -128,7 +128,7 @@ Harfino is built on **13 core engineering principles** defined by Ahmed Shawky:
 ├──────────────┬───────────────────────────────────────┤
 │ Layer        │ Technology                            │
 ├──────────────┼───────────────────────────────────────┤
-│ Frontend     │ Next.js 14+, React, Tailwind CSS      │
+│ Frontend     │ Next.js 16+, React, Tailwind CSS      │
 │              │ React Query (TanStack Query v5)       │
 │              │ PWA (next-pwa)                        │
 ├──────────────┼───────────────────────────────────────┤
@@ -136,7 +136,7 @@ Harfino is built on **13 core engineering principles** defined by Ahmed Shawky:
 │              │ Drizzle ORM (type-safe queries)       │
 │              │ Zod (runtime validation)              │
 ├──────────────┼───────────────────────────────────────┤
-│ Auth         │ NextAuth v5 (Auth.js)                 │
+│ Auth         │ NextAuth v4 (Auth.js)                 │
 │              │ Google OAuth 2.0 (PKCE recommended)   │
 │              │ JWT sessions (stateless)              │
 ├──────────────┼───────────────────────────────────────┤
@@ -176,7 +176,7 @@ Harfino is built on **13 core engineering principles** defined by Ahmed Shawky:
 
 ### 6.1 Golden Schema
 
-All tables are defined in a single Drizzle schema file at `libs/db/schema.ts`. This is the **source of truth** for the data model.
+All tables are defined in `packages/shared/src/db/schema.ts`. This is the **source of truth** for the data model.
 
 ### 6.2 Key Tables
 
@@ -458,7 +458,7 @@ export interface ILocationService {
 
 ## 10. Authentication Flow
 
-### 10.1 Tech: NextAuth v5 + Google OAuth 2.0
+### 10.1 Tech: NextAuth v4 + Google OAuth 2.0
 
 ```
 Client/Craftsman clicks "Sign in with Google"
@@ -467,13 +467,13 @@ NextAuth redirects to Google OAuth
     ↓
 Google consent screen
     ↓
-Google redirects back with authorization code
+Google redirects back to `/api/auth/callback/google`
     ↓
 NextAuth exchanges code for tokens
     ↓
 NextAuth looks up user by googleId (or creates new)
     ↓
-JWT session created (24h TTL) → stored in cookie
+JWT session created (24h TTL) → stored in secure cookie
     ↓
 If role == 'craftsman' && onboarding incomplete → /onboarding
 If role == 'client' → / (home)
@@ -900,7 +900,7 @@ services:
 | [ADR-001](adr/001_why_valkey_over_redis.md) | Using Valkey over Redis | Accepted |
 | [ADR-002](adr/002_why_modular_monolith.md) | Choosing Modular Monolith over Microservices | Accepted |
 | [ADR-003](adr/003_why_drizzle_orm.md) | Choosing Drizzle ORM over Prisma | Accepted |
-| [ADR-004](adr/004_why_nextauth.md) | Choosing NextAuth v5 over Custom JWT | Accepted |
+| [ADR-004](adr/004_why_nextauth.md) | Choosing NextAuth v4 over Custom JWT | Accepted |
 | [ADR-005](adr/005_websocket_vs_sse.md) | WebSocket vs SSE for Realtime Location | Proposed |
 | [ADR-006](adr/006_react_query.md) | React Query as Client State Management | Accepted |
 | [ADR-007](adr/007_postgresql_ssot.md) | PostgreSQL as Single Source of Truth | Accepted |

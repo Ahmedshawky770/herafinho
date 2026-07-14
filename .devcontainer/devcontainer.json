@@ -1,0 +1,29 @@
+{
+  "name": "herafino-dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customCommands": [
+    {
+      "name": "lint",
+      "command": "npm run lint"
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck"
+    },
+    {
+      "name": "test",
+      "command": "npm run test:unit"
+    }
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [3000, 3001, 5432, 6379],
+  "postCreateCommand": "npm install"
+}

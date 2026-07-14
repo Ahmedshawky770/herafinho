@@ -9,10 +9,6 @@
     "lint": "eslint . --ext .ts,.tsx",
     "docker:dev": "docker compose -f ../../docker-compose.yml up -d postgres valkey",
     "docker:down": "docker compose -f ../../docker-compose.yml down",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx src/lib/db/seed.ts",
-    "db:studio": "drizzle-kit studio",
     "ws": "tsx src/ws/index.ts",
     "ws:dev": "tsx --watch src/ws/index.ts"
   },

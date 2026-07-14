@@ -1,4 +1,6 @@
-# ADR-004: Choosing NextAuth v5 (Auth.js) over Custom JWT Implementation
+# ADR-004: Choosing NextAuth v4 (Auth.js) over Custom JWT Implementation
+
+> **Status note (Implementation):** The original decision (recorded above) was made for **NextAuth v5**. The version actually installed and implemented is **next-auth v4** (`next-auth@^4.24.14`), which is what the code samples in this repo reflect. The rationale below remains valid; only the major version differs.
 
 | Status | Accepted |
 |--------|----------|
@@ -18,22 +20,22 @@ Harfino requires authentication for 3 user roles (client, craftsman, admin) with
 
 Options:
 1. **Custom JWT** (manually issue + verify JWTs using `jose` or `jsonwebtoken`)
-2. **NextAuth v5 (Auth.js)** — framework-agnostic auth library, Next.js-native
+2. **NextAuth v4 (Auth.js)** — framework-agnostic auth library, Next.js-native
 3. **Clerk / Supabase Auth / Firebase Auth** — third-party auth platforms
 
 ---
 
 ## Decision
 
-We chose **NextAuth v5 (Auth.js)**.
+We chose **NextAuth v4 (Auth.js)**.
 
 ### Rationale
 
-| Criterion | NextAuth v5 | Custom JWT | Clerk / Supabase / Firebase |
+| Criterion | NextAuth v4 | Custom JWT | Clerk / Supabase / Firebase |
 |-----------|------------|------------|-----------------------------|
 | **Google OAuth** | Built-in provider | Manual OAuth flow | Built-in |
 | **Session strategy** | JWT or database (configurable) | Manual JWT | Managed platform |
-| **Framework fit** | Next.js App Router (v5 improved) | Agnostic (more code) | External dependency |
+| **Framework fit** | Next.js App Router (v4 compatible) | Agnostic (more code) | External dependency |
 | **Type safety** | Full TypeScript | Manual typings | API-dependent |
 | **CSRF protection** | Built-in | Manual | Built-in |
 | **Session management** | Cookie-based + hooks | Manual cookie handling | Managed |
@@ -63,13 +65,13 @@ We chose **NextAuth v5 (Auth.js)**.
 
 ### Bad
 - **Library abstraction** — debugging NextAuth internals can be opaque.
-- **Version lock** — v5 is still stabilizing; breaking changes possible.
+- **Version lock** — v4 is mature and stable; breaking changes are rare between minor versions.
 - **Custom claims** — adding `role` and `googleId` to JWT requires custom callbacks.
 
 ### Risks
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| NextAuth v5 API changes | Low | Medium | Pin version; test on upgrade |
+| NextAuth v4 API changes | Low | Medium | Pin version; test on upgrade |
 | JWT size limit (4 kB) exceeded | Low | Low | Keep session payload minimal (userId, role, googleId only) |
 | Google OAuth scope changes | Low | Medium | Monitor Google changelog |
 

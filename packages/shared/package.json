@@ -1,0 +1,30 @@
+{
+  "name": "@herafino/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@herafino/types": "*",
+    "@herafino/contracts": "*",
+    "bullmq": "^5.79.2",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-zod": "^0.8.3",
+    "postgres": "^3.4.9",
+    "pino": "^10.3.1",
+    "iovalkey": "^0.3.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3"
+  }
+}

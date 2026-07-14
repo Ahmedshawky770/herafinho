@@ -1,12 +1,12 @@
-import type { ID, OrderStatus, User } from './user.types';
+import type { ID, OrderStatus, User, CraftType } from './user.types';
 
-export type { ID, OrderStatus, User };
+export type { ID, OrderStatus, User, CraftType };
 
 export interface Order {
   id: ID;
   clientId: ID;
   craftsmanId?: ID;
-  craftType: string;
+  craftType: CraftType;
   status: OrderStatus;
   description: string;
   address: string;
@@ -24,7 +24,7 @@ export interface Order {
 export interface NewOrder {
   clientId: ID;
   craftsmanId?: ID;
-  craftType: string;
+  craftType: CraftType;
   description: string;
   address: string;
   latitude: string;

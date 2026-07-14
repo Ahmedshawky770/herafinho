@@ -1,8 +1,6 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-export type UploadFileType = 'id_card' | 'transport_photo' | 'face_photo' | 'avatar';
-
 export class StorageService {
   private client: S3Client;
   private bucket: string;

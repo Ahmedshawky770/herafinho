@@ -98,7 +98,7 @@ C4Component
   - SSR/SSG/ISR pages (App Router)
   - Client Components (React)
   - PWA manifest + service worker
-التقنيات: Next.js 14 RSC/Pages, Tailwind CSS, Client-side React
+التقنيات: Next.js 16 RSC/Pages, Tailwind CSS, Client-side React
 المدى: الصفحات + الـ Components المرئية
 ```
 

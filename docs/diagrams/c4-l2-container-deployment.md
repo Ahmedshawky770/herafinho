@@ -11,7 +11,7 @@ C4Container
     System_Ext(maps, "Google Maps", "Geocoding & Places API")
 
     System_Boundary(harfino_platform, "منصة حرفينو (Harfino) — Docker Compose") {
-        Container(web, "Next.js App", "Next.js 14 + TypeScript + Tailwind", "Fullstack app: SSR/SSG + API Routes + WebSocket server\nport: 3000 (HTTP) + 3001 (WS)")
+        Container(web, "Next.js App", "Next.js 16 + TypeScript + Tailwind", "Fullstack app: SSR/SSG + API Routes + WebSocket server\nport: 3000 (HTTP) + 3001 (WS)")
         ContainerDb(postgres, "PostgreSQL", "PostgreSQL 16 + Drizzle ORM", "SSOT: Users, Craftsmen, Orders, Reviews, Complaints, Notifications\nport: 5432")
         Container(valkey, "Valkey", "Valkey (Open-source Redis fork)", "Cache: Hot data, sessions, rate limiting, distributed queue\nport: 6379")
         Container(worker, "Background Workers", "Node.js + BullMQ", "Email jobs, cleanup, realtime sync, webhooks retry")
@@ -38,7 +38,7 @@ C4Container
 
 ### 1. Next.js App (Port 3000 + 3001)
 ```
-التقنية: Next.js 14 + TypeScript + Tailwind CSS
+التقنية: Next.js 16 + TypeScript + Tailwind CSS
 المسؤولية:
   - SSR/SSG/ISR للصفحات
   - API Routes (Route Handlers) للـ REST/CRUD
@@ -46,7 +46,7 @@ C4Container
   - NextAuth middleware
   - React Query SWR على العميل
 الميزات:
-  - App Router (Next.js 14+)
+  - App Router (Next.js 16+)
   - Server Components + Client Components
   - PWA (next-pwa) للعملاء الموبايل
 ```
@@ -175,7 +175,7 @@ flowchart LR
 | **Drizzle ORM** | Type-safe, minimal bundle, better than Prisma for large schemas |
 | **BullMQ + Valkey** | Native integration with Valkey buffer; no separate Redis needed |
 | **Port 3001 for WS** | Separation of concerns; avoids Next.js dev-server coupling |
-| **WebSocket in Next.js** | Uses ws library directly in Route Handler (Next.js 14+) |
+| **WebSocket in Next.js** | Uses ws library directly in Route Handler (Next.js 16+) |
 
 ---
 
