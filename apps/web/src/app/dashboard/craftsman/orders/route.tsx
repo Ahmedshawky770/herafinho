@@ -1,7 +1,7 @@
 import { auth } from '@/app/auth';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ui/card';
-import { ClipboardList, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { ClipboardList, Clock, CircleCheck, CircleX } from 'lucide-react';
 
 export default async function CraftsmanOrdersPage() {
   const session = await auth();
@@ -12,8 +12,8 @@ export default async function CraftsmanOrdersPage() {
   const stats = [
     { label: 'طلبات جديدة', value: '0', icon: ClipboardList, color: 'text-blue-600' },
     { label: 'قيد التنفيذ', value: '0', icon: Clock, color: 'text-amber-600' },
-    { label: 'مكتملة', value: '0', icon: CheckCircle2, color: 'text-green-600' },
-    { label: 'ملغاة', value: '0', icon: XCircle, color: 'text-red-600' },
+    { label: 'مكتملة', value: '0', icon: CircleCheck, color: 'text-green-600' },
+    { label: 'ملغاة', value: '0', icon: CircleX, color: 'text-red-600' },
   ];
 
   return (

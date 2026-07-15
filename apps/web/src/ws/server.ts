@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket, type RawData } from 'ws';
 import { createServer } from 'http';
 import { logger } from '@herafino/shared/logger/factory';
-import { verifyToken } from '@herafino/shared/auth/options';
+import { verifyToken } from '../lib/auth/verify-token';
 import { valkey } from '@herafino/shared/valkey/client';
 
 // ─── Types ───────────────────────────────────────────────────────────────────

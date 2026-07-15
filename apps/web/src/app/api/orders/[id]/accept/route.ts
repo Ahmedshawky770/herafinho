@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { UnauthorizedError } from '@herafino/shared/errors/app-error';
-import { createErrorResponse } from '@herafino/shared/http/error-handler';
+import { createErrorResponse } from '@/lib/http/error-handler';
 import { auth } from '@/app/auth';
 import { OrderRepository } from '@herafino/shared/repositories/order.repository';
 import { OutboxRepository } from '@herafino/shared/events/outbox-repository';
+import { publishOrderUpdate } from '@herafino/shared/services/realtime.service';
 import { logger } from '@herafino/shared/logger/factory';
 import type { ID } from '@herafino/types';
 
@@ -49,6 +50,7 @@ export async function PATCH(
     }
 
     const updated = await orderRepository.updateStatus(id, 'accepted');
+    await publishOrderUpdate(id, { status: 'accepted', craftsmanId: session.user.id });
     return NextResponse.json({ data: updated });
   } catch (error) {
     logger.error({ error }, 'PATCH /api/orders/[id]/accept failed');

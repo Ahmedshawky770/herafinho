@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createErrorResponse } from '@herafino/shared/http/error-handler';
+import { createErrorResponse } from '@/lib/http/error-handler';
 import { auth } from '@/app/auth';
 import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.repository';
 import { OutboxRepository } from '@herafino/shared/events/outbox-repository';

@@ -1,7 +1,7 @@
 import { auth } from '@/app/auth';
 import { redirect } from 'next/navigation';
 import { Card } from '@/components/ui/card';
-import { Users, ClipboardList, AlertTriangle, ShieldCheck, UserCheck } from 'lucide-react';
+import { Users, ClipboardList, TriangleAlert, ShieldCheck, UserCheck } from 'lucide-react';
 
 interface AdminStats {
   pendingCraftsmen: number;
@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
     {
       title: 'شكاوى معلقة',
       value: stats.pendingComplaints,
-      icon: AlertTriangle,
+      icon: TriangleAlert,
       href: '/dashboard/admin/complaints',
       color: 'text-red-600',
       bg: 'bg-red-50',
@@ -88,7 +88,7 @@ export default async function AdminDashboardPage() {
       title: 'الشكاوى',
       desc: 'مراجعة الشكاوى المقدمة من العملاء واتخاذ الإجراءات',
       href: '/dashboard/admin/complaints',
-      icon: AlertTriangle,
+      icon: TriangleAlert,
     },
     {
       title: 'سجل التدقيق',

@@ -31,6 +31,8 @@ function buildEvent(event: Omit<DomainEvent, 'id' | 'metadata'> & { metadata: Do
   };
 }
 
+import { computeFreezeState } from '../moderation';
+
 export function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -132,13 +134,13 @@ export class CraftsmanRepository implements ICraftsmanRepository {
   async freeze(id: ID, until: Date, reason: string, adminId: ID): Promise<CraftsmanProfile> {
     const current = await this.findProfileById(id);
     if (!current) throw new Error('Craftsman profile not found');
-    const newFreezeCount = current.freezeCount + 1;
-    const [updated] = await db.update(craftsmanProfiles).set({ status: 'frozen', freezeUntil: until, freezeReason: reason, freezeCount: newFreezeCount }).where(eq(craftsmanProfiles.id, id)).returning();
-    logger.info({ profileId: id, adminId, freezeCount: newFreezeCount, until: until.toISOString() }, 'Craftsman profile frozen');
+    const { freezeCount, status, banned } = computeFreezeState(current.freezeCount);
+    const [updated] = await db.update(craftsmanProfiles).set({ status, freezeUntil: until, freezeReason: reason, freezeCount }).where(eq(craftsmanProfiles.id, id)).returning();
+    logger.info({ profileId: id, adminId, freezeCount, until: until.toISOString(), banned }, 'Craftsman profile frozen');
     await this.appendOutbox({
       id: crypto.randomUUID(),
-      name: 'craftsman.frozen',
-      payload: { profileId: updated.id, userId: updated.userId, freezeUntil: until, reason, freezeCount: newFreezeCount, adminId } as Record<string, unknown>,
+      name: banned ? 'craftsman.banned' : 'craftsman.frozen',
+      payload: { profileId: updated.id, userId: updated.userId, freezeUntil: until, reason, freezeCount, adminId } as Record<string, unknown>,
       metadata: { actorId: adminId, occurredAt: new Date() },
     });
     return toDomain(updated);

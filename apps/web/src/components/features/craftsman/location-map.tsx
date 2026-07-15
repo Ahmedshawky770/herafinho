@@ -6,7 +6,7 @@ import { MapPin } from 'lucide-react';
 export function LocationMap({
   lat,
   lng,
-  onChange,
+  onChange: _onChange,
 }: {
   lat: number | null;
   lng: number | null;

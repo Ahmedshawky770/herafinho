@@ -57,25 +57,25 @@ npm run worker:dev # Background workers
 - [Architecture Decision Records](docs/adr/) - Architectural decisions and rationale
 - [Architecture Diagrams](docs/diagrams/) - C4 model, ERD, sequence diagrams
 - [Troubleshooting](docs/troubleshooting/) - Common issues and solutions
-- Legacy docs: [Outdated structure sketch](docs/structure.md) (deprecated)
 
 ## Available Scripts
 
 ```bash
 npm run dev                  # Start Next.js dev server
 npm run build                # Production build
-npm run start                # Start production server
-npm run lint                 # ESLint + auto-fix
-npm run typecheck            # TypeScript check
-npm run test                 # Run all tests
-npm run test:unit            # Unit tests (70%)
-npm run test:integration     # Integration tests (20%)
-npm run test:e2e             # E2E tests (10%)
-npm run test:coverage        # Coverage report
-npm run db:generate          # Drizzle migrations
-npm run db:migrate           # Apply migrations
-npm run db:studio            # Database browser
-npm run worker:dev           # Background workers (dev)
+npm run start               # Start production server
+npm run lint                # ESLint (turbo: runs in every package)
+npm run typecheck           # TypeScript check (turbo: web, workers, shared, contracts, types)
+npm run test                # Run all tests (vitest) across packages/apps
+npm run test:watch          # Watch mode
+npm run test:unit           # Unit tests
+npm run test:integration    # Integration tests
+npm run test:e2e            # E2E tests (Playwright — requires browsers installed)
+npm run test:coverage       # Coverage report (text/json/html)
+npm run db:generate         # Drizzle migrations
+npm run db:migrate          # Apply migrations
+npm run db:studio           # Database browser
+npm run worker:dev          # Background workers (dev)
 ```
 
 ## Architecture
@@ -96,7 +96,7 @@ Before submitting a PR, ensure:
 - [ ] All tests pass (`npm run test:all`)
 - [ ] TypeScript compiles (`npm run typecheck`)
 - [ ] ESLint passes (`npm run lint`)
-- [ ] Code coverage ≥ 80%
+- [ ] New code is covered by unit/integration tests (`npm run test:coverage` reports coverage; the threshold gate will be enforced as the suite grows)
 - [ ] Relevant diagrams updated (if architectural changes)
 - [ ] ADR created (for architectural decisions)
 

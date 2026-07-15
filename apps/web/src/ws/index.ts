@@ -2,30 +2,27 @@
 'use strict';
 
 import { HarfinoWebSocketServer } from './server';
+import { logger } from '@herafino/shared/logger/factory';
 
 const SHUTDOWN_SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
 
 async function main(): Promise<void> {
-  console.log('[ws] ────────────────────────────────────────');
-  console.log('[ws] Harfino WebSocket Server');
-  console.log(`[ws] PID: ${process.pid}`);
-  console.log(`[ws] Node: ${process.version}`);
-  console.log(`[ws] Port: ${process.env.WS_PORT || 3001}`);
-  console.log('[ws] ────────────────────────────────────────\n');
+  logger.info('[ws] Harfino WebSocket Server');
+  logger.info({ pid: process.pid, node: process.version, port: process.env.WS_PORT || 3001 }, '[ws] startup');
 
   let isShuttingDown = false;
 
   const gracefulShutdown = async (signal: string): Promise<void> => {
     if (isShuttingDown) {
-      console.error(`[ws] Forced exit from ${signal}`);
+      logger.error({ signal }, '[ws] Forced exit');
       process.exit(1);
     }
 
     isShuttingDown = true;
-    console.log(`\n[ws] Received ${signal}, shutting down gracefully...`);
+    logger.info({ signal }, '[ws] Received shutdown signal, shutting down gracefully');
 
     try {
-      console.log('[ws] Goodbye');
+      logger.info('[ws] Goodbye');
       process.exit(0);
     } catch {
       process.exit(1);
@@ -39,12 +36,11 @@ async function main(): Promise<void> {
   }
 
   process.on('unhandledRejection', (reason) => {
-    console.error(`[ws] Unhandled rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
+    logger.error({ reason: reason instanceof Error ? reason.message : String(reason) }, '[ws] Unhandled rejection');
   });
 
   process.on('uncaughtException', (err: Error) => {
-    console.error(`[ws] Uncaught exception: ${err.message}`);
-    console.error(err.stack);
+    logger.error({ message: err.message, stack: err.stack }, '[ws] Uncaught exception');
     void gracefulShutdown('uncaughtException');
   });
 
@@ -52,18 +48,18 @@ async function main(): Promise<void> {
     const wsServer = new HarfinoWebSocketServer();
     await wsServer.start();
 
-    console.log(`[ws] ✅ WebSocket server running on port ${process.env.WS_PORT || 3001}`);
-    console.log('[ws] Waiting for connections...\n');
+    logger.info({ port: process.env.WS_PORT || 3001 }, '[ws] WebSocket server running');
+    logger.info('[ws] Waiting for connections');
 
     // Export for external use (e.g., API routes can import and call notifyUser)
     (global as Record<string, unknown>).__wsServer = wsServer;
 
     await new Promise(() => {});
   } catch (err) {
-    console.error(
-      `[ws] ❌ Failed to start: ${err instanceof Error ? err.message : String(err)}`
+    logger.error(
+      { message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : '' },
+      '[ws] Failed to start'
     );
-    console.error(err instanceof Error ? err.stack : '');
     process.exit(1);
   }
 }

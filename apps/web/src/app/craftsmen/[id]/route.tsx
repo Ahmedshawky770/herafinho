@@ -3,7 +3,7 @@ import { auth } from '@/app/auth';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, CarFront, CheckCircle2, XCircle } from 'lucide-react';
+import { Star, MapPin, CarFront, CircleCheck, CircleX } from 'lucide-react';
 import Link from 'next/link';
 
 interface CraftsmanProfilePageProps {
@@ -136,7 +136,7 @@ export default async function CraftsmanProfilePage({ params }: CraftsmanProfileP
               </div>
               <div className="flex flex-col items-end gap-2">
                 <Badge variant={isAvailable ? 'default' : 'outline'} className="flex items-center gap-1">
-                  {isAvailable ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}
+                  {isAvailable ? <CircleCheck className="size-3" /> : <CircleX className="size-3" />}
                   {isAvailable ? 'متاح' : 'غير متاح'}
                 </Badge>
                 <Badge variant={isOnline ? 'default' : 'secondary'} className="flex items-center gap-1">

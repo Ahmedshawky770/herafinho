@@ -12,11 +12,12 @@
     "start": "turbo run start",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "test:watch": "turbo run test:watch",
-    "test:unit": "turbo run test:unit",
-    "test:integration": "turbo run test:integration",
-    "test:e2e": "turbo run test:e2e",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run --include '**/*.unit.test.ts' 'tests/unit/**'",
+    "test:integration": "vitest run --include '**/*.integration.test.ts' 'tests/integration/**'",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage",
     "test:all": "npm run test:unit && npm run test:integration",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
@@ -30,6 +31,8 @@
     "ws:dev": "turbo run ws:dev"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "next": "^16.2.10",
     "turbo": "^2.10.3",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"

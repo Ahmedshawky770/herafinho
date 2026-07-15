@@ -4,7 +4,15 @@
   "private": true,
   "scripts": {
     "worker": "tsx src/index.ts",
-    "worker:dev": "tsx --watch src/index.ts"
+    "worker:dev": "tsx --watch src/index.ts",
+    "build": "tsc --noEmit",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
     "@herafino/types": "*",
@@ -18,7 +26,10 @@
     "ws": "^8.21.0"
   },
   "devDependencies": {
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.2.10",
     "tsx": "^4.23.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   }
 }

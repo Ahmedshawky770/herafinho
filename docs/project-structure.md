@@ -2,7 +2,11 @@
 
 > **Canonical reference**
 > This document reflects the actual codebase layout. For the original aspirational
-> design see `docs/plan.md`. For an outdated flat-structure sketch see `docs/structure.md` (deprecated).
+> design see `docs/plan.md`.
+>
+> Last reconciled with the code after the monorepo hardening + worker/service unification:
+> all BullMQ job infrastructure and shared services now live in `@herafino/shared`
+> (`src/jobs`, `src/services`); `apps/workers` is a thin orchestration layer.
 
 ```
 herafino/
@@ -51,17 +55,17 @@ herafino/
 │   │   │   │   └── page.tsx    # Landing page
 │   │   │   ├── components/
 │   │   │   │   ├── ui/           # Shadcn/UI primitives (~28 components)
-│   │   │   │   ├── features/    # Presentational components
-│   │   │   │   │   ├── layout/  # Sidebar, mobile-menu, top-bar
+│   │   │   │   ├── features/    # Presentational feature components
+│   │   │   │   │   ├── admin/
 │   │   │   │   │   ├── auth/
-│   │   │   │   │   │   └── google-signin-button.tsx
-│   │   │   │   │   ├── craftsman/   # (planned)
-│   │   │   │   │   ├── orders/      # (planned)
-│   │   │   │   │   ├── reviews/     # (planned)
-│   │   │   │   │   ├── complaints/  # (planned)
-│   │   │   │   │   ├── locations/   # (planned)
-│   │   │   │   │   ├── admin/       # (planned)
-│   │   │   │   │   └── search/      # (planned)
+│   │   │   │   │   ├── complaints/
+│   │   │   │   │   ├── craftsman/
+│   │   │   │   │   ├── layout/       # Sidebar, mobile-menu, top-bar
+│   │   │   │   │   ├── locations/
+│   │   │   │   │   ├── orders/
+│   │   │   │   │   ├── reviews/
+│   │   │   │   │   ├── search/
+│   │   │   │   │   └── landing-page.tsx
 │   │   │   │   ├── providers/
 │   │   │   │   │   ├── providers.tsx
 │   │   │   │   │   ├── query-provider.tsx
@@ -70,75 +74,24 @@ herafino/
 │   │   │   │   │   └── auth-provider.tsx
 │   │   │   │   └── landing-page.tsx
 │   │   │   ├── middleware.ts      # Next.js auth middleware
-│   │   │   ├── features/         # Domain Feature Modules (DDD-style)
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── auth/         # (planned)
-│   │   │   │   ├── complaint/    # (index + sub-routes)
-│   │   │   │   ├── craftsman/    # (index + sub-routes)
-│   │   │   │   ├── order/        # (index + sub-routes)
-│   │   │   │   ├── reviews/      # (planned)
-│   │   │   │   ├── locations/    # (planned)
-│   │   │   │   ├── notifications/ # (planned)
-│   │   │   │   └── admin/        # (planned)
 │   │   │   ├── hooks/            # Shared custom hooks
 │   │   │   │   └── index.ts
-│   │   │   ├── lib/             # Foundation / Core Libraries
+│   │   │   ├── lib/             # Thin foundation layer — imports from @herafino/shared
 │   │   │   │   ├── auth/
-│   │   │   │   │   ├── options.ts   # NextAuth configuration
-│   │   │   │   │   ├── jwt.ts      # JWT utilities
-│   │   │   │   │   └── middleware.ts # Auth middleware
+│   │   │   │   │   └── verify-token.ts
 │   │   │   │   ├── cache/
-│   │   │   │   │   ├── cache-service.ts
-│   │   │   │   │   ├── cache-event-handler.ts
-│   │   │   │   │   ├── cache-invalidation.ts
-│   │   │   │   │   ├── cache-keys.ts
-│   │   │   │   │   ├── rate-limit.middleware.ts
-│   │   │   │   │   ├── rate-limit.service.ts
-│   │   │   │   │   └── repositories/
-│   │   │   │   ├── config/
-│   │   │   │   │   └── env.ts
+│   │   │   │   │   └── rate-limit.middleware.ts
 │   │   │   │   ├── db/
-│   │   │   │   │   ├── schema.ts    # Drizzle ORM Schema
-│   │   │   │   │   ├── index.ts     # Database connection
-│   │   │   │   │   ├── migrations/  # Drizzle auto-generated
-│   │   │   │   │   ├── repositories/
-│   │   │   │   │   └── seed.ts
-│   │   │   │   ├── errors/
-│   │   │   │   │   ├── app-error.ts
-│   │   │   │   │   ├── not-found-error.ts
-│   │   │   │   │   ├── conflict-error.ts
-│   │   │   │   │   ├── unauthorized-error.ts
-│   │   │   │   │   └── forbidden-error.ts
-│   │   │   │   ├── events/
-│   │   │   │   │   ├── valkey-event-bus.ts
-│   │   │   │   │   ├── outbox-processor.ts
-│   │   │   │   │   ├── outbox-repository.ts
-│   │   │   │   │   ├── event-bus.ts
-│   │   │   │   │   ├── webhook-dispatcher.ts
-│   │   │   │   │   └── index.ts
+│   │   │   │   │   └── repositories/   # Web-side repository re-exports (delegate to @herafino/shared)
 │   │   │   │   ├── http/
-│   │   │   │   │   └── error-handler.ts
-│   │   │   │   ├── logger/
-│   │   │   │   │   └── factory.ts  # Pino logger factory
+│   │   │   │   │   └── error-handler.ts  # NextResponse error mapping
 │   │   │   │   ├── storage/
-│   │   │   │   │   ├── storage-service.ts
-│   │   │   │   │   ├── local-storage.ts
-│   │   │   │   │   ├── types.ts
-│   │   │   │   │   ├── upload-helper.ts
-│   │   │   │   │   └── validation.ts
-│   │   │   │   ├── utils.ts
-│   │   │   │   ├── validation/     # Zod schemas
-│   │   │   │   │   ├── onboarding.schema.ts
-│   │   │   │   │   ├── order.schema.ts
-│   │   │   │   │   ├── complaint.schema.ts
-│   │   │   │   │   ├── location.schema.ts
-│   │   │   │   │   └── order.validation.ts
-│   │   │   │   └── valkey/
-│   │   │   │       ├── client.ts
-│   │   │   │       └── index.ts
-│   │   │   └── ws/
-│   │   │       ├── index.ts        # WebSocket server startup
-│   │   │       └── server.ts
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   └── storage-service.ts
+│   │   │   │   └── utils.ts
+│   │   │   └── ws/             # WebSocket server (port 3001)
+│   │   │       ├── index.ts        # Startup + signal handling
+│   │   │       └── server.ts       # HarfinoWebSocketServer
 │   │   ├── public/
 │   │   ├── components.json
 │   │   ├── drizzle.config.json
@@ -152,22 +105,14 @@ herafino/
 │   │   └── tsconfig.json
 │   └── workers/                 # Background Workers (BullMQ)
 │       ├── src/
-│       │   ├── index.ts
-│       │   ├── worker.ts
-│       │   ├── processors/
-│       │   │   ├── email.processor.ts
-│       │   │   ├── notification-processor.ts
-│       │   │   ├── order-processor.ts
-│       │   │   ├── order-timeout.processor.ts
-│       │   │   ├── webhook.processor.ts
-│       │   │   └── index.ts
-│       │   ├── services/
-│       │   │   ├── notification-service.ts
-│       │   │   └── audit-log-service.ts
+│       │   ├── index.ts          # Entry point (signal handling / graceful shutdown)
+│       │   ├── worker.ts         # Orchestration: builds event handlers, starts BullMQ workers
+│       │   │                     # (job factories come from @herafino/shared/jobs)
 │       │   ├── email/
-│       │   │   └── resend-email-service.ts
-│       │   └── event-handlers/
-│       │       ├── index.ts
+│       │   │   └── resend-email-service.ts   # ResendEmailService (real Resend client)
+│       │   ├── services/
+│       │   │   └── audit-log-service.ts      # Thin adapter over shared AuditService
+│       │   └── event-handlers/    # One handler class per domain event
 │       │       ├── craftsman.handlers.ts
 │       │       ├── order.handlers.ts
 │       │       ├── review.handler.ts
@@ -208,7 +153,7 @@ herafino/
 │   │   │   └── index.ts
 │   │   ├── package.json
 │   │   └── tsconfig.json
-│   └── shared/                   # Shared implementations
+│   └── shared/                   # Shared implementations (single source of truth)
 │       ├── package.json
 │       ├── tsconfig.json
 │       └── src/
@@ -217,44 +162,78 @@ herafino/
 │           │   ├── cache-service.ts
 │           │   ├── cache-event-handler.ts
 │           │   ├── cache-invalidation.ts
-│           │   └── cache-keys.ts
-│           ├── db/               # Shared DB connection + schema
+│           │   ├── cache-keys.ts
+│           │   └── rate-limit.service.ts
+│           ├── db/               # Shared DB connection + schema + seed
 │           │   ├── schema.ts
-│           │   └── index.ts
+│           │   ├── index.ts
+│           │   └── seed.ts
 │           ├── events/           # Event Bus + Outbox pattern
 │           │   ├── valkey-event-bus.ts
 │           │   ├── outbox-processor.ts
-│           │   └── outbox-repository.ts
+│           │   ├── outbox-repository.ts
+│           │   └── index.ts
+│           ├── errors/           # AppError hierarchy
+│           │   └── app-error.ts
+│           ├── http/             # Shared HTTP helpers
+│           │   └── index.ts
+│           ├── jobs/             # BullMQ producers + consumers (single source of truth)
+│           │   ├── connection.ts          # getQueueConnection() from VALKEY_URL
+│           │   ├── email.queue.ts         # createEmailQueue / createEmailWorker
+│           │   ├── webhook.worker.ts      # createWebhookWorker (consumes 'webhook')
+│           │   ├── order-timeout.worker.ts# createOrderTimeoutWorker (consumes 'order-timeout')
+│           │   ├── index.ts
+│           │   └── connection.unit.test.ts
 │           ├── logger/
-│           │   └── factory.ts    # Pino logger factory
-│           ├── repositories/     # Generic repositories
+│           │   ├── factory.ts    # Pino logger factory
+│           │   └── logger.unit.test.ts
+│           ├── repositories/     # Generic repositories (delegate to db)
 │           │   ├── user.repository.ts
 │           │   ├── craftsman.repository.ts
 │           │   ├── order.repository.ts
 │           │   ├── review.repository.ts
-│           │   └── complaint.repository.ts
-│           ├── services/         # Shared services
-│           │   ├── email.service.ts
-│           │   ├── notification.service.ts
-│           │   ├── audit.service.ts
+│           │   ├── complaint.repository.ts
+│           │   ├── location.repository.ts
+│           │   ├── notification.repository.ts
+│           │   └── index.ts
+│           ├── services/         # Shared domain services
+│           │   ├── notification.service.ts   # DatabaseNotificationService
+│           │   ├── audit.service.ts          # AuditService
 │           │   ├── location.service.ts
-│           │   ├── webhook.service.ts
-│           │   └── websocket.service.ts
+│           │   ├── moderation.service.ts
+│           │   ├── realtime.service.ts       # publishOrderUpdate (Valkey pub/sub)
+│           │   ├── websocket.service.ts
+│           │   ├── webhook-dispatcher.service.ts  # dispatchWebhook / enqueueOrderTimeoutCheck
+│           │   ├── index.ts
+│           │   └── realtime.service.unit.test.ts
+│           ├── storage/
+│           │   └── types.ts
+│           ├── validation/       # Zod schemas
+│           │   ├── onboarding.schema.ts
+│           │   ├── order.schema.ts
+│           │   ├── complaint.schema.ts
+│           │   ├── location.schema.ts
+│           │   ├── review.schema.ts
+│           │   └── index.ts
+│           ├── moderation.ts
 │           └── valkey/
 │               └── client.ts
 ├── tests/                        # Test Suite
-│   ├── unit/
-│   ├── integration/
+│   ├── e2e/            # Playwright end-to-end (critical journeys)
+│   ├── unit/           # Vitest unit tests
+│   ├── integration/    # Vitest integration tests
 │   ├── setup.ts
 │   └── vitest.setup.ts
 ├── docker-compose.yml            # Development
 ├── docker-compose.prod.yml       # Production
-├── Dockerfile                    # Next.js App (multi-stage)
+├── Dockerfile                    # Next.js App (multi-stage, standalone)
 ├── Dockerfile.worker             # Background Worker
+├── Dockerfile.ws                 # WebSocket server
 ├── Dockerfile.postgres           # PostgreSQL init script
 ├── .env.example                  # Environment template
+├── .env.local                    # Local secrets (gitignored)
 ├── .env.test                     # Test environment
-├── .eslintrc.js                  # ESLint config (fallback)
+├── .eslintrc.mjs                 # ESLint flat config (fallback)
 ├── .prettierrc                   # Prettier config
 ├── .gitignore
 ├── .editorconfig                 # Editor consistency
@@ -262,8 +241,7 @@ herafino/
 ├── turbo.json                    # Turborepo config
 ├── package.json                  # Root monorepo package.json
 ├── package-lock.json
-├── vite.config.ts                # Root Vitest/Vite aliases
-├── vitest.config.ts
+├── vitest.config.ts              # Vitest config (aliases for @herafino/*)
 ├── playwright.config.ts
 ├── LICENSE                        # MIT License (with Egyptian attribution)
 ├── README.md                     # Project README
@@ -280,9 +258,10 @@ herafino/
 | **apps/workers** | Background jobs separated from web for independent scaling |
 | **packages/types** | Single source of truth for domain types (SSOT) |
 | **packages/contracts** | Interfaces between modules (Loose Coupling) |
-| **packages/shared** | Shared services, event bus, cache, DB connection, repositories |
-| **apps/web/src/features** | Feature slices (complaint, craftsman, order implemented; others planned) |
-| **apps/web/src/lib** | Foundation layer (no business logic here) |
+| **packages/shared** | Shared services, event bus, cache, DB connection, repositories + BullMQ job producers/consumers (`src/jobs`) — single source of truth |
+| **apps/web/src/components/features** | Presentational feature components (admin, auth, complaints, craftsman, layout, locations, orders, reviews, search) |
+| **apps/web/src/lib** | Thin foundation layer that imports from `@herafino/shared` (no duplicated DB/events/errors/validation/valkey) |
+| **apps/workers** | Thin orchestration layer: builds event handlers + starts BullMQ workers; job factories come from `@herafino/shared/jobs` |
 | **middleware.ts** | Next.js middleware inside the web app (`apps/web/src/middleware.ts`) |
 | **docs/adr** | Architecture Decision Records (11 ADRs covering adopted + planned decisions) |
 | **docs/diagrams** | C4 Model + Sequence + Data Flow diagrams |
@@ -338,13 +317,11 @@ herafino/
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:watch": "vitest watch",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration",
+    "test:unit": "vitest run --include '**/*.unit.test.ts' 'tests/unit/**'",
+    "test:integration": "vitest run --include '**/*.integration.test.ts' 'tests/integration/**'",
     "test:e2e": "playwright test",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx src/lib/db/seed.ts",
-    "db:studio": "drizzle-kit studio",
+    "docker:dev": "docker compose -f ../../docker-compose.yml up -d postgres valkey",
+    "docker:down": "docker compose -f ../../docker-compose.yml down",
     "ws": "tsx src/ws/index.ts",
     "ws:dev": "tsx --watch src/ws/index.ts"
   }
@@ -359,7 +336,15 @@ herafino/
 {
   "scripts": {
     "worker": "tsx src/index.ts",
-    "worker:dev": "tsx --watch src/index.ts"
+    "worker:dev": "tsx --watch src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration"
   }
 }
 ```

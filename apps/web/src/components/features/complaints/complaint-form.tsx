@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
-import { AlertTriangle } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 
 export function ComplaintForm({
-  orderId,
+  orderId: _orderId,
   onSubmit,
 }: {
   orderId: string;
@@ -22,7 +22,7 @@ export function ComplaintForm({
     <Card>
       <CardHeader>
         <CardTitle className="text-right flex items-center gap-2">
-          <AlertTriangle className="size-5 text-red-500" />
+          <TriangleAlert className="size-5 text-red-500" />
           تقديم شكوى
         </CardTitle>
       </CardHeader>

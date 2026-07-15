@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { CircleCheck, Circle } from 'lucide-react';
 
 export function OrderTimeline({
   steps,
@@ -18,7 +18,7 @@ export function OrderTimeline({
           <div key={index} className="flex gap-3">
             <div className="mt-1">
               {step.completed ? (
-                <CheckCircle2 className="size-5 text-green-600" />
+                <CircleCheck className="size-5 text-green-600" />
               ) : (
                 <Circle className="size-5 text-gray-300" />
               )}

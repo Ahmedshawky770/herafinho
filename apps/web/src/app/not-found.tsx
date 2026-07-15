@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home } from 'lucide-react';
+import { House } from 'lucide-react';
 
 export default function NotFound() {
   return (
@@ -10,7 +10,7 @@ export default function NotFound() {
         <p className="mt-2 text-lg text-gray-600">الصفحه غير موجوده</p>
         <Link href="/">
           <Button className="mt-4">
-            <Home className="ms-2 size-4" />
+            <House className="ms-2 size-4" />
             العوده للرئيسيه
           </Button>
         </Link>

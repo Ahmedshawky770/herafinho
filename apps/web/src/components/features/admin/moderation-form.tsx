@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 
 export function ModerationForm({
-  complaintId,
+  complaintId: _complaintId,
   onDecision,
 }: {
   complaintId: string;

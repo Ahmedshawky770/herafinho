@@ -3,11 +3,11 @@
 import { MapPin, Wrench } from 'lucide-react';
 
 export function CraftsmanMarker({
-  id,
+  id: _id,
   name,
   craftType,
-  lat,
-  lng,
+  lat: _lat,
+  lng: _lng,
   onClick,
 }: {
   id: string;

@@ -2,31 +2,35 @@
 'use strict';
 
 import { startWorkerService } from './worker';
+import { logger } from '@herafino/shared/logger/factory';
 
 const SHUTDOWN_SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
 
 async function main(): Promise<void> {
-  console.log(`[worker] ──────────────────────────────────────`);
-  console.log(`[worker] Harfino Background Worker Service`);
-  console.log(`[worker] PID: ${process.pid}`);
-  console.log(`[worker] Node: ${process.version}`);
-  console.log(`[worker] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[worker] VALKEY_URL: ${process.env.VALKEY_URL || 'valkey://localhost:6379'}`);
-  console.log(`[worker] ──────────────────────────────────────\n`);
+  logger.info('[worker] Harfino Background Worker Service');
+  logger.info(
+    {
+      pid: process.pid,
+      node: process.version,
+      nodeEnv: process.env.NODE_ENV || 'development',
+      valkeyUrl: process.env.VALKEY_URL || 'valkey://localhost:6379',
+    },
+    '[worker] startup'
+  );
 
   let isShuttingDown = false;
 
   const gracefulShutdown = async (signal: string): Promise<void> => {
     if (isShuttingDown) {
-      console.log(`[worker] Received ${signal} — already shutting down, forcing exit`);
+      logger.error({ signal }, '[worker] Already shutting down, forcing exit');
       process.exit(1);
     }
 
     isShuttingDown = true;
-    console.log(`[worker] Received ${signal} — initiating graceful shutdown...`);
+    logger.info({ signal }, '[worker] Initiating graceful shutdown');
 
     try {
-      console.log('[worker] Graceful shutdown complete');
+      logger.info('[worker] Graceful shutdown complete');
       process.exit(0);
     } catch {
       process.exit(1);
@@ -40,23 +44,25 @@ async function main(): Promise<void> {
   }
 
   process.on('unhandledRejection', (reason) => {
-    console.error(`[worker] Unhandled rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
+    logger.error(
+      { reason: reason instanceof Error ? reason.message : String(reason) },
+      '[worker] Unhandled rejection'
+    );
   });
 
   process.on('uncaughtException', (err) => {
-    console.error(`[worker] Uncaught exception: ${err.message}`);
-    console.error(err.stack);
+    logger.error({ message: err.message, stack: err.stack }, '[worker] Uncaught exception');
     void gracefulShutdown('uncaughtException');
   });
 
   try {
     await startWorkerService();
-    console.log('\n[worker] ✅ Service fully started');
+    logger.info('[worker] Service fully started');
   } catch (err) {
-    console.error(
-      `[worker] ❌ Failed to start: ${err instanceof Error ? err.message : String(err)}`
+    logger.error(
+      { message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : '' },
+      '[worker] Failed to start'
     );
-    console.error(err instanceof Error ? err.stack : '');
     process.exit(1);
   }
 }

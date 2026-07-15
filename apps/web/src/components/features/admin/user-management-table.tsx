@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal } from 'lucide-react';
+import { Ellipsis } from 'lucide-react';
 
 export function UserManagementTable({
   users,
@@ -36,7 +36,7 @@ export function UserManagementTable({
                   </td>
                   <td className="py-3">
                     <Button size="icon" variant="ghost">
-                      <MoreHorizontal className="size-4" />
+                      <Ellipsis className="size-4" />
                     </Button>
                   </td>
                 </tr>

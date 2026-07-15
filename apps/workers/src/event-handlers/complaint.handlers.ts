@@ -39,7 +39,7 @@ export class ComplaintInvestigatingEventHandler implements EventHandler {
 }
 
 export class ComplaintResolvedEventHandler implements EventHandler {
-  constructor(private config: ComplaintResolvedConfig) {}
+  constructor(private config: ComplaintResolvedConfig, _outbox?: unknown) {}
   async handle(event: { name: string; payload: Record<string, unknown> }): Promise<void> {
     if (event.name === 'complaint.resolved') {
       const userId = event.payload.againstUserId as string;

@@ -1,7 +1,7 @@
 import { auth } from '@/app/auth';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { rateLimitMiddleware } from '@herafino/shared/cache/rate-limit.middleware';
+import { rateLimitMiddleware } from '@/lib/cache/rate-limit.middleware';
 import { rateLimitService } from '@herafino/shared/cache/rate-limit.service';
 
 const RATE_LIMIT_CONFIG = { windowMs: 60000, maxRequests: 100 };

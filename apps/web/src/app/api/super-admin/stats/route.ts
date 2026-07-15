@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ForbiddenError } from '@herafino/shared/errors/app-error';
-import { createErrorResponse } from '@herafino/shared/http/error-handler';
+import { createErrorResponse } from '@/lib/http/error-handler';
 import { auth } from '@/app/auth';
 import { db } from '@herafino/shared/db';
 import { users, orders, complaints } from '@herafino/shared/db/schema';

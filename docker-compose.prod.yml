@@ -71,6 +71,32 @@ services:
       timeout: 10s
       retries: 3
 
+  ws:
+    build:
+      context: .
+      dockerfile: Dockerfile.ws
+    container_name: harfino_ws
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    command: npm run ws
+    environment:
+      NODE_ENV: production
+      WS_PORT: "3001"
+      DATABASE_URL: postgres://${POSTGRES_USER:-herafino}:${POSTGRES_PASSWORD}@postgres:5432/herafino_prod
+      DIRECT_URL: postgres://${POSTGRES_USER:-herafino}:${POSTGRES_PASSWORD}@postgres:5432/herafino_prod
+      VALKEY_URL: valkey://valkey:6379
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      WORKER_ID: ws-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    networks:
+      - harfino_network
+
   worker:
     build:
       context: .

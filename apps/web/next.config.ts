@@ -24,6 +24,7 @@ const withPWA = require('next-pwa')({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   transpilePackages: ['@herafino/shared', '@herafino/types', '@herafino/contracts'],
   experimental: {
     serverActions: {
@@ -69,7 +70,6 @@ const nextConfig: NextConfig = {
   },
   webpack: (config) => {
     config.resolve.alias['@'] = path.resolve(__dirname, 'src');
-    config.resolve.alias['@/features'] = path.resolve(__dirname, 'src/features');
 config.resolve.alias['@herafino/types'] = path.resolve(
         __dirname,
         '../../packages/types/src'

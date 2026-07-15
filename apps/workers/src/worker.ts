@@ -1,9 +1,7 @@
-import { ValkeyEventBus, OutboxProcessor, OutboxRepository } from '@herafino/shared';
-import { createEmailWorker, createEmailQueue } from './processors/email.processor';
-import { createWebhookWorker } from './processors/webhook.processor';
-import { createOrderTimeoutWorker } from './processors/order-timeout.processor';
+import { ValkeyEventBus, OutboxProcessor, OutboxRepository, getValkeyClient } from '@herafino/shared';
+import { createEmailWorker, createEmailQueue, createWebhookWorker, createOrderTimeoutWorker } from '@herafino/shared/jobs';
 import { ResendEmailService } from './email/resend-email-service';
-import { DatabaseNotificationService } from './services/notification-service';
+import { DatabaseNotificationService } from '@herafino/shared/services';
 import { AuditLogService } from './services/audit-log-service';
 import { UserRepository, OrderRepository, CraftsmanRepository } from '@herafino/shared';
 import { logger } from '@herafino/shared';
@@ -191,7 +189,7 @@ function buildEventHandlers(
       async enqueueOrderAcceptedEmail(clientId: string): Promise<void> {
         await enqueueEmail(clientId, 'تم قبول طلبك – حرفينو', '<p>تم قبول طلبك!</p>', 'تم قبول طلبك!');
       },
-      async notifyClient(userId: string, title: string, body: string): Promise<void> {
+      async createInAppNotification(userId: string, title: string, body: string): Promise<void> {
         await notify(userId, title, body);
       },
       async notifyOtherBidders(orderId: string, acceptedCraftsmanId: string): Promise<void> {
@@ -392,12 +390,15 @@ export async function startWorkerService(): Promise<void> {
     return;
   }
 
-  console.log(`[worker] ────────────────────────────────────`);
-  console.log(`[worker] Harfino Background Worker Service`);
-  console.log(`[worker] ID:  ${WORKER_ID}`);
-  console.log(`[worker] PID: ${process.pid}`);
-  console.log(`[worker] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[worker] ────────────────────────────────────\n`);
+  logger.info('[worker] Harfino Background Worker Service');
+  logger.info(
+    {
+      workerId: WORKER_ID,
+      pid: process.pid,
+      nodeEnv: process.env.NODE_ENV || 'development',
+    },
+    '[worker] startup'
+  );
 
   const emailService = new ResendEmailService();
   const emailWorker = createEmailWorker(emailService);
@@ -405,7 +406,7 @@ export async function startWorkerService(): Promise<void> {
   const webhookWorker = createWebhookWorker();
   const notificationService = new DatabaseNotificationService();
 
-  const eventBus = new ValkeyEventBus();
+  const eventBus = new ValkeyEventBus(getValkeyClient());
   await eventBus.start();
 
   const outboxRepo = new OutboxRepository();
@@ -426,11 +427,11 @@ export async function startWorkerService(): Promise<void> {
 
   const shutdown = async (signal: string): Promise<void> => {
     if (isShuttingDown) {
-      console.error(`[worker] Forced exit from ${signal}`);
+      logger.error({ signal }, '[worker] Forced exit');
       process.exit(1);
     }
     isShuttingDown = true;
-    console.log(`\n[worker] Received ${signal}, shutting down gracefully...`);
+    logger.info({ signal }, '[worker] Received shutdown signal, shutting down gracefully');
 
     try {
       await Promise.all([
@@ -441,10 +442,13 @@ export async function startWorkerService(): Promise<void> {
         emailQueue.close(),
         orderTimeoutWorker.close(),
       ]);
-      console.log('[worker] Cleanup done — goodbye');
+      logger.info('[worker] Cleanup done — goodbye');
       process.exit(0);
     } catch (err) {
-      console.error(`[worker] Shutdown error: ${err instanceof Error ? err.message : String(err)}`);
+      logger.error(
+        { message: err instanceof Error ? err.message : String(err) },
+        '[worker] Shutdown error'
+      );
       process.exit(1);
     }
   };
@@ -454,12 +458,14 @@ export async function startWorkerService(): Promise<void> {
   }
 
   process.on('unhandledRejection', (reason) => {
-    console.error(`[worker] Unhandled rejection: ${reason instanceof Error ? reason.message : String(reason)}`);
+    logger.error(
+      { reason: reason instanceof Error ? reason.message : String(reason) },
+      '[worker] Unhandled rejection'
+    );
   });
 
   process.on('uncaughtException', (err: Error) => {
-    console.error(`[worker] Uncaught exception: ${err.message}`);
-    console.error(err.stack);
+    logger.error({ message: err.message, stack: err.stack }, '[worker] Uncaught exception');
     void shutdown('uncaughtException');
   });
 
@@ -476,9 +482,9 @@ export async function startWorkerService(): Promise<void> {
     },
   };
 
-  console.log(`[worker] ✅ ${eventHandlers.size} event handler groups registered`);
-  console.log('[worker] ✅ Email worker, webhook worker, outbox processor, Valkey bus started');
-  console.log('[worker] ⚡ Ready — awaiting outbox events...\n');
+  logger.info({ handlerGroups: eventHandlers.size }, '[worker] Event handler groups registered');
+  logger.info('[worker] Email worker, webhook worker, outbox processor, Valkey bus started');
+  logger.info('[worker] Ready — awaiting outbox events');
 
   await new Promise(() => {});
 }

@@ -65,11 +65,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx turbo run build
-      - run: npm run test:unit
-        env:
-          DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
-          VALKEY_URL: redis://localhost:6379
-      - run: npm run test:integration
+      - name: Test (npm test)
+        run: npm test
         env:
           DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
           VALKEY_URL: redis://localhost:6379

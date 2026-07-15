@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus } from 'lucide-react';
 
 export function CreateOrderModal({
-  onClose,
+  onClose: _onClose,
 }: {
   onClose?: () => void;
 }) {

@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
 import { ForbiddenError } from '@herafino/shared/errors/app-error';
-import { createErrorResponse } from '@herafino/shared/http/error-handler';
+import { createErrorResponse } from '@/lib/http/error-handler';
 import { auth } from '@/app/auth';
 import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.repository';
+import { UserRepository } from '@herafino/shared/repositories/user.repository';
 import { OutboxRepository } from '@herafino/shared/events/outbox-repository';
+import { applyBanCascade } from '@herafino/shared/services/moderation.service';
+import { FREEZE_BAN_THRESHOLD } from '@herafino/shared/moderation';
 import { logger } from '@herafino/shared/logger/factory';
 import type { ID } from '@herafino/types';
 
 const craftsmanRepository = new CraftsmanRepository(new OutboxRepository());
+const userRepository = new UserRepository();
 
 interface AuthSession {
   user?: {
@@ -40,6 +44,10 @@ export async function POST(
     const freezeUntil = body.freezeUntil ? new Date(body.freezeUntil) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     const updated = await craftsmanRepository.freeze(id, freezeUntil, body.reason, session.user.id);
+
+    if (updated.freezeCount >= FREEZE_BAN_THRESHOLD) {
+      await applyBanCascade(userRepository, updated.userId, updated.id, updated.freezeCount, body.reason, session.user.id);
+    }
 
     return NextResponse.json({ data: updated }, { status: 200 });
   } catch (error) {

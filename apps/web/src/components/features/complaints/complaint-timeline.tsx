@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { CircleCheck, Clock, TriangleAlert } from 'lucide-react';
 
 export function ComplaintTimeline({
   events,
@@ -11,8 +11,8 @@ export function ComplaintTimeline({
 }) {
   const iconMap: Record<string, typeof Clock> = {
     pending: Clock,
-    investigating: AlertTriangle,
-    resolved: CheckCircle2,
+    investigating: TriangleAlert,
+    resolved: CircleCheck,
     dismissed: Clock,
   };
 

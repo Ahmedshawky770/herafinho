@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
 
 export function ReviewForm({
-  craftsmanId,
+  craftsmanId: _craftsmanId,
   onSubmit,
 }: {
   craftsmanId: string;
