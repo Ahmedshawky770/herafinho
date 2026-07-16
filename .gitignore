@@ -15,11 +15,18 @@ apps/web/node_modules
 /coverage
 
 # next.js
-/.next/
+.next/
 /out/
 
 # production
 /build
+/dist
+apps/workers/dist/
+
+# compiled output that shadows source .ts files (never commit these)
+**/src/**/*.js
+**/src/**/*.d.ts
+**/src/**/*.js.map
 
 # misc
 .DS_Store

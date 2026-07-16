@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "prepare": "husky || true",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
@@ -30,8 +31,20 @@
     "ws": "turbo run ws",
     "ws:dev": "turbo run ws:dev"
   },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.61.1",
+    "lint-staged": "^15.5.2",
     "next": "^16.2.10",
     "turbo": "^2.10.3",
     "typescript": "^6.0.3",
@@ -43,6 +56,7 @@
   },
   "packageManager": "npm@10.8.2",
   "dependencies": {
-    "@radix-ui/react-tooltip": "^1.2.12"
+    "@radix-ui/react-tooltip": "^1.2.12",
+    "prettier": "^3.9.5"
   }
 }
