@@ -1,4 +1,4 @@
-import type { ID, NewCraftsmanProfile, CraftsmanProfile, CraftType } from '@herafino/types';
+import type { ID, NewCraftsmanProfile, CraftsmanProfile, CraftType, CraftsmanStatus } from '@herafino/types';
 import type { ICraftsmanRepository } from '@herafino/contracts';
 import { eq, and } from 'drizzle-orm';
 import { logger } from '../logger/factory';
@@ -66,6 +66,18 @@ export class CraftsmanRepository implements ICraftsmanRepository {
       where: eq(craftsmanProfiles.id, id),
     });
     return profile ? toDomain(profile) : null;
+  }
+
+  async findAll(status?: CraftsmanStatus): Promise<CraftsmanProfile[]> {
+    const result = status
+      ? await db.query.craftsmanProfiles.findMany({
+          where: eq(craftsmanProfiles.status, status),
+          orderBy: (p, { desc }) => [desc(p.createdAt)],
+        })
+      : await db.query.craftsmanProfiles.findMany({
+          orderBy: (p, { desc }) => [desc(p.createdAt)],
+        });
+    return result.map(toDomain);
   }
 
   async createProfile(profile: NewCraftsmanProfile): Promise<CraftsmanProfile> {

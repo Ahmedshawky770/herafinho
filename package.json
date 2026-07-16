@@ -15,8 +15,8 @@
     "typecheck": "turbo run typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:unit": "vitest run --include '**/*.unit.test.ts' 'tests/unit/**'",
-    "test:integration": "vitest run --include '**/*.integration.test.ts' 'tests/integration/**'",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage",
     "test:all": "npm run test:unit && npm run test:integration",
@@ -41,13 +41,19 @@
     ]
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1088.0",
+    "@aws-sdk/s3-request-presigner": "^3.1088.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.61.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/coverage-v8": "^4.1.10",
+    "jsdom": "^29.1.1",
     "lint-staged": "^15.5.2",
     "next": "^16.2.10",
     "turbo": "^2.10.3",
     "typescript": "^6.0.3",
+    "vite": "^7.3.6",
     "vitest": "^4.1.9"
   },
   "engines": {

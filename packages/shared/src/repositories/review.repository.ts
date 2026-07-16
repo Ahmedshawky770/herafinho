@@ -54,6 +54,14 @@ export class ReviewRepository implements IReviewRepository {
     return result.map(toDomain);
   }
 
+  async findByClientId(clientId: ID): Promise<Review[]> {
+    const result = await db.query.reviews.findMany({
+      where: eq(reviews.clientId, clientId),
+      orderBy: (r, { desc }) => [desc(r.createdAt)],
+    });
+    return result.map(toDomain);
+  }
+
   async create(review: NewReview): Promise<Review> {
     const [created] = await db.insert(reviews).values(review).returning();
     logger.info({ reviewId: created.id, orderId: created.orderId }, 'Review created');

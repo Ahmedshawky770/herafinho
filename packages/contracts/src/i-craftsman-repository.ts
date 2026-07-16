@@ -1,8 +1,9 @@
-import type { ID, CraftsmanProfile, NewCraftsmanProfile } from '@herafino/types';
+import type { ID, CraftsmanProfile, NewCraftsmanProfile, CraftsmanStatus } from '@herafino/types';
 
 export interface ICraftsmanRepository {
   findProfileByUserId(userId: ID): Promise<CraftsmanProfile | null>;
   findProfileById(id: ID): Promise<CraftsmanProfile | null>;
+  findAll(status?: CraftsmanStatus): Promise<CraftsmanProfile[]>;
   createProfile(profile: NewCraftsmanProfile): Promise<CraftsmanProfile>;
   updateProfile(userId: ID, data: Partial<CraftsmanProfile>): Promise<CraftsmanProfile>;
   approve(id: ID, adminId: ID): Promise<void>;

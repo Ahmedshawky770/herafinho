@@ -72,6 +72,7 @@ jobs:
       - name: Test (npm test)
         run: npm test
         env:
+          RUN_INTEGRATION: '1'
           DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
           VALKEY_URL: redis://localhost:6379
 

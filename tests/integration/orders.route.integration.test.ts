@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockAuth, setSession, clientSession, craftsmanSession } from './helpers/auth';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { UserRepository } from '@herafino/shared/repositories/user.repository';
 import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.repository';
 import { OrderRepository } from '@herafino/shared/repositories/order.repository';
@@ -50,7 +51,7 @@ async function importRoute() {
   return import('@/app/api/orders/[id]/route');
 }
 
-describe('GET /api/orders/[id] (integration)', () => {
+describeIntegration('GET /api/orders/[id] (integration)', () => {
   it('returns 401 when unauthenticated', async () => {
     setSession(null);
     const { client, order } = await seedOrder();
@@ -97,7 +98,7 @@ describe('GET /api/orders/[id] (integration)', () => {
   });
 });
 
-describe('PATCH /api/orders/[id]/cancel (integration)', () => {
+describeIntegration('PATCH /api/orders/[id]/cancel (integration)', () => {
   it('allows the owner client to cancel a pending order', async () => {
     const { client, order } = await seedOrder();
     setSession(clientSession(client.id));

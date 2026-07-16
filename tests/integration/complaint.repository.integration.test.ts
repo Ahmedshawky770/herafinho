@@ -4,6 +4,7 @@ import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.rep
 import { OrderRepository } from '@herafino/shared/repositories/order.repository';
 import { ComplaintsRepository } from '@herafino/shared/repositories/complaint.repository';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { complaints } from '@herafino/shared/db/schema';
 
 const ctx = setupIntegrationDatabase();
@@ -47,7 +48,7 @@ async function seedComplaint() {
   return { reporter, against, admin, order, complaint };
 }
 
-describe('ComplaintsRepository (integration)', () => {
+describeIntegration('ComplaintsRepository (integration)', () => {
   it('creates a complaint', async () => {
     const { complaint } = await seedComplaint();
     expect(complaint.id).toBeTruthy();

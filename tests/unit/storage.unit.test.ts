@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@aws-sdk/client-s3', () => ({
-  S3Client: vi.fn(() => ({ send: vi.fn().mockResolvedValue({}) })),
+  S3Client: vi.fn().mockImplementation(function () { return { send: vi.fn().mockResolvedValue({}) }; }),
   PutObjectCommand: vi.fn(),
   DeleteObjectCommand: vi.fn(),
 }));

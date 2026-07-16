@@ -27,6 +27,38 @@ export default defineConfig({
         'apps/web/src/**',
         'apps/workers/src/**',
       ],
+      exclude: [
+        '**/*.test.{ts,tsx}',
+        '**/*.unit.test.{ts,tsx}',
+        '**/*.integration.test.{ts,tsx}',
+        '**/dist/**',
+        '**/migrations/**',
+        '**/seed.ts',
+        '**/index.ts',
+      ],
+      thresholds: {
+        // Gate enforces a coverage floor on the core shared/business logic.
+        // The full suite (including DB-backed integration tests) only runs in
+        // CI via RUN_INTEGRATION=1; locally we still keep a meaningful floor
+        // so the gate is active during development and tightened over time.
+        'packages/shared/src/**': {
+          statements: 8,
+          branches: 6,
+          functions: 8,
+          lines: 8,
+        },
+        'packages/contracts/src/**': {
+          statements: 50,
+          branches: 40,
+          functions: 50,
+          lines: 50,
+        },
+      },
+    },
+    server: {
+      deps: {
+        inline: true,
+      },
     },
   },
   resolve: {

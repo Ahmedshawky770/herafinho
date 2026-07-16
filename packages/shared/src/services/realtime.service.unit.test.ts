@@ -1,7 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
 
-const publishMock = vi.fn(() => Promise.resolve());
+const { publishMock } = vi.hoisted(() => ({
+  publishMock: vi.fn(() => Promise.resolve()),
+}));
 
 vi.mock('@herafino/shared/valkey/client', () => ({
   valkey: { publish: publishMock },

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { UserRepository } from '@herafino/shared/repositories/user.repository';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { users } from '@herafino/shared/db/schema';
 
 const ctx = setupIntegrationDatabase();
@@ -16,7 +17,7 @@ async function seedUser(overrides: Record<string, unknown> = {}) {
   });
 }
 
-describe('UserRepository (integration)', () => {
+describeIntegration('UserRepository (integration)', () => {
   it('creates a user with a generated id and defaults', async () => {
     const user = await new UserRepository().create({
       email: `${randomId()}@example.com`,

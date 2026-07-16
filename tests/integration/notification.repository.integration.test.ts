@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { UserRepository } from '@herafino/shared/repositories/user.repository';
 import { NotificationRepository } from '@herafino/shared/repositories/notification.repository';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { notifications } from '@herafino/shared/db/schema';
 
 const ctx = setupIntegrationDatabase();
@@ -16,7 +17,7 @@ async function seedUser() {
   });
 }
 
-describe('NotificationRepository (integration)', () => {
+describeIntegration('NotificationRepository (integration)', () => {
   it('sends a notification', async () => {
     const user = await seedUser();
     const notif = await new NotificationRepository().send({

@@ -15,13 +15,17 @@ export function setSession(session: MockSession | null) {
   currentSession = session;
 }
 
+// Mock NextAuth at the top level (vi.mock is hoisted). The factory reads the
+// mutable `currentSession` so tests can swap the active session via setSession.
+vi.mock('@/app/auth', () => ({
+  auth: vi.fn(async () => currentSession),
+  handlers: {},
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+}));
+
 export function mockAuth() {
-  vi.mock('@/app/auth', () => ({
-    auth: vi.fn(async () => currentSession),
-    handlers: {},
-    signIn: vi.fn(),
-    signOut: vi.fn(),
-  }));
+  // no-op: the mock is registered at module load (see vi.mock above)
 }
 
 export function clientSession(id: string): MockSession {

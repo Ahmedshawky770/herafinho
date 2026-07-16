@@ -1,6 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { RateLimitService, type RateLimitConfig } from '@herafino/shared/cache/rate-limit.service';
 import type { ICacheService } from '@herafino/contracts';
+
+vi.mock('iovalkey', () => ({
+  Redis: class {
+    constructor(_options?: unknown) {}
+    on() {
+      return this;
+    }
+    connect() {
+      return Promise.resolve();
+    }
+  },
+}));
 
 class FakeCache implements ICacheService {
   private store = new Map<string, number>();

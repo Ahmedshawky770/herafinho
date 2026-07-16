@@ -4,6 +4,7 @@ import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.rep
 import { OrderRepository } from '@herafino/shared/repositories/order.repository';
 import { ReviewRepository } from '@herafino/shared/repositories/review.repository';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { reviews } from '@herafino/shared/db/schema';
 
 const ctx = setupIntegrationDatabase();
@@ -46,7 +47,7 @@ async function seedCompletedOrder() {
   return { client, craftsmanUser, order };
 }
 
-describe('ReviewRepository (integration)', () => {
+describeIntegration('ReviewRepository (integration)', () => {
   it('creates a review for a completed order', async () => {
     const { client, craftsmanUser, order } = await seedCompletedOrder();
     const review = await new ReviewRepository().create({

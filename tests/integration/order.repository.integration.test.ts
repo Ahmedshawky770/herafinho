@@ -4,6 +4,7 @@ import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.rep
 import { OrderRepository } from '@herafino/shared/repositories/order.repository';
 import { OutboxRepository } from '@herafino/shared/events/outbox-repository';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { eventOutbox, orders } from '@herafino/shared/db/schema';
 import type { NewOrder } from '@herafino/types';
 
@@ -50,7 +51,7 @@ function makeOrder(clientId: string, craftsmanId: string, overrides: Partial<New
   };
 }
 
-describe('OrderRepository (integration)', () => {
+describeIntegration('OrderRepository (integration)', () => {
   it('creates an order defaulting to pending and appends an outbox event', async () => {
     const { client, craftsmanUser } = await seedClientAndCraftsman();
     const repo = new OrderRepository(new OutboxRepository());

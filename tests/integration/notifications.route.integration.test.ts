@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mockAuth, setSession, clientSession } from './helpers/auth';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { UserRepository } from '@herafino/shared/repositories/user.repository';
 import { NotificationRepository } from '@herafino/shared/repositories/notification.repository';
 
@@ -18,7 +19,7 @@ async function seedUser() {
   });
 }
 
-describe('GET /api/notifications (integration)', () => {
+describeIntegration('GET /api/notifications (integration)', () => {
   it('returns the user notifications', async () => {
     const user = await seedUser();
     await new NotificationRepository().send({ userId: user.id, type: 'in_app', title: 'A', body: 'a' });
@@ -53,7 +54,7 @@ describe('GET /api/notifications (integration)', () => {
   });
 });
 
-describe('PATCH /api/notifications (integration)', () => {
+describeIntegration('PATCH /api/notifications (integration)', () => {
   it('marks all notifications as read', async () => {
     const user = await seedUser();
     await new NotificationRepository().send({ userId: user.id, type: 'in_app', title: 'A', body: 'a' });

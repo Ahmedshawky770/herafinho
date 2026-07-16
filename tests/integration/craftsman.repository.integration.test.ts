@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { UserRepository } from '@herafino/shared/repositories/user.repository';
 import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.repository';
 import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
+import { describeIntegration } from './helpers/db';
 import { craftsmanProfiles } from '@herafino/shared/db/schema';
 import type { NewCraftsmanProfile } from '@herafino/types';
 
@@ -29,7 +30,7 @@ async function seedCraftsman(overrides: Partial<NewCraftsmanProfile> = {}) {
   });
 }
 
-describe('CraftsmanRepository (integration)', () => {
+describeIntegration('CraftsmanRepository (integration)', () => {
   it('creates a profile linked to a user', async () => {
     const profile = await seedCraftsman();
     expect(profile.id).toBeTruthy();
