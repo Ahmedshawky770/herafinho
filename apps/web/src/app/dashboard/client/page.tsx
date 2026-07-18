@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { Package, Search, Star, MapPin } from 'lucide-react';
+import { Package, Search, Star, MapPin, Plus } from 'lucide-react';
 import { PageHeader, StatCard, EmptyState } from '@/components/features/common/ui';
 import { Button } from '@/components/ui/button';
 import { OrderCard } from '@/components/features/orders/order-card';
@@ -28,12 +28,20 @@ export default function ClientDashboard() {
         title={`مرحباً، ${session?.user?.name?.split(' ')[0] ?? 'بك'}`}
         description="إدارة طلباتك وتصفّح الحرفيين الموثوقين بالقرب منك"
         action={
-          <Link href="/search">
-            <Button>
-              <Search className="size-4" />
-              ابحث عن حرفي
-            </Button>
-          </Link>
+          <>
+            <Link href="/search">
+              <Button variant="outline">
+                <Search className="size-4" />
+                ابحث عن حرفي
+              </Button>
+            </Link>
+            <Link href="/orders/new">
+              <Button>
+                <Plus className="size-4" />
+                طلب جديد
+              </Button>
+            </Link>
+          </>
         }
       />
 

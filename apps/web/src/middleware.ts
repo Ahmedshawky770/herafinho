@@ -48,7 +48,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/dashboard/admin')) {
-    if (!session?.user || (session.user as { role?: string } | undefined)?.role !== 'admin') {
+    // super_admin is a superset of admin and may access all admin sections.
+    const adminRole = (session?.user as { role?: string } | undefined)?.role;
+    if (!session?.user || (adminRole !== 'admin' && adminRole !== 'super_admin')) {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }

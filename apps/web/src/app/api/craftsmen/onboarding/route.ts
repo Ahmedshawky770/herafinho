@@ -55,7 +55,11 @@ export async function POST(request: Request) {
       workshopLongitude: parsed.data.workshopLongitude,
     });
 
-    await userRepository.update(userId, { role: 'craftsman', onboardingComplete: true });
+    // The craftsman has submitted their profile but must remain pending until an
+    // admin approves them. Onboarding is intentionally left incomplete so the
+    // mandatory-onboarding middleware keeps them on the waiting screen and out of
+    // the dashboard until approval.
+    await userRepository.update(userId, { role: 'craftsman', onboardingComplete: false });
 
     return NextResponse.json({ data: profile }, { status: 201 });
   } catch (error) {

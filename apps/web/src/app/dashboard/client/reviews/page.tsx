@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { PageHeader, EmptyState } from '@/components/features/common/ui';
+import { PageHeader, EmptyState, BackLink } from '@/components/features/common/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star, MessageSquare } from 'lucide-react';
 
@@ -41,6 +41,7 @@ export default function ClientReviewsPage() {
 
   return (
     <div className="space-y-6">
+      <BackLink href="/dashboard/client" label="رجوع للرئيسية" />
       <PageHeader title="تقييماتي" description="التقييمات والمراجعات التي أضفتها للحرفيين" />
 
       {isLoading ? (

@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { PageHeader, craftTypeLabel, CraftsmanStatusBadge } from '@/components/features/common/ui';
+import { PageHeader, craftTypeLabel, CraftsmanStatusBadge, BackLink } from '@/components/features/common/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OnboardingForm } from '@/components/features/craftsman/onboarding-form';
 import { User, Car, MapPin } from 'lucide-react';
@@ -53,6 +53,7 @@ export default function CraftsmanProfilePage() {
 
   return (
     <div className="space-y-6">
+      <BackLink href="/dashboard/craftsman" label="رجوع للرئيسية" />
       <PageHeader
         title="الملف الشخصي"
         description="بيانات حسابك الموثّق"

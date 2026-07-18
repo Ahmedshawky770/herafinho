@@ -2,6 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type {
   OrderStatus,
@@ -86,6 +88,18 @@ export function EmptyState({
       {description && <p className="mt-1 max-w-sm text-sm text-gray-500">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
+  );
+}
+
+export function BackLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-primary"
+    >
+      <ArrowRight className="size-4" />
+      {label}
+    </Link>
   );
 }
 

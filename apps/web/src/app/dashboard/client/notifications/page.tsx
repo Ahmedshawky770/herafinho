@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { PageHeader, EmptyState } from '@/components/features/common/ui';
+import { PageHeader, EmptyState, BackLink } from '@/components/features/common/ui';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -41,6 +41,7 @@ export default function ClientNotificationsPage() {
 
   return (
     <div className="space-y-6">
+      <BackLink href="/dashboard/client" label="رجوع للرئيسية" />
       <PageHeader
         title="الإشعارات"
         description={unread > 0 ? `${unread} إشعار غير مقروء` : 'لا توجد إشعارات جديدة'}

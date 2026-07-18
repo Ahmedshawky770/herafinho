@@ -6,16 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
+import { COMPLAINT_REASONS } from '@/components/features/common/ui';
 import { TriangleAlert } from 'lucide-react';
+import type { ComplaintReason } from '@herafino/types';
 
 export function ComplaintForm({
   orderId: _orderId,
   onSubmit,
+  isSubmitting = false,
+  error,
 }: {
   orderId: string;
-  onSubmit?: (reason: string, details: string) => void;
+  onSubmit?: (reason: ComplaintReason, details: string) => void;
+  isSubmitting?: boolean;
+  error?: string | null;
 }) {
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState<'' | ComplaintReason>('');
   const [details, setDetails] = useState('');
 
   return (
@@ -32,15 +38,15 @@ export function ComplaintForm({
           <Select
             id="reason"
             value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            onChange={(e) => setReason(e.target.value as ComplaintReason)}
             className="w-full"
           >
             <option value="">اختر السبب</option>
-            <option value="delay">تأخر في التنفيذ</option>
-            <option value="quality">جودة العمل</option>
-            <option value="behavior">سلوك الحرفي</option>
-            <option value="price">السعر</option>
-            <option value="other">أخرى</option>
+            {(Object.entries(COMPLAINT_REASONS) as [ComplaintReason, string][]).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </Select>
         </div>
         <div className="space-y-2">
@@ -49,16 +55,17 @@ export function ComplaintForm({
             id="details"
             value={details}
             onChange={(e) => setDetails(e.target.value)}
-            placeholder="اشرح تفاصيل الشكوى"
+            placeholder="اشرح تفاصيل الشكوى (10 أحرف على الأقل)"
           />
         </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <Button
           type="button"
           className="w-full"
-          disabled={!reason || !details}
-          onClick={() => onSubmit?.(reason, details)}
+          disabled={!reason || details.trim().length < 10 || isSubmitting}
+          onClick={() => reason && onSubmit?.(reason, details)}
         >
-          إرسال الشكوى
+          {isSubmitting ? 'جارٍ الإرسال…' : 'إرسال الشكوى'}
         </Button>
       </CardContent>
     </Card>

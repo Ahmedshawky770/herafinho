@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import { LogOut, Bell } from 'lucide-react';
 import Link from 'next/link';
+import { MobileMenu } from '@/components/features/layout/mobile-menu';
 import type { UserRole } from '@herafino/types';
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -39,6 +40,7 @@ export function TopBar() {
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur">
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
+          <MobileMenu />
           <h1 className="text-lg font-bold text-primary">حرفينو</h1>
           <span className="hidden rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary sm:inline">
             {ROLE_LABELS[role]}

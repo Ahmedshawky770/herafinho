@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Hammer, MapPin, Star, Clock, Send, ArrowRight } from 'lucide-react';
 import { EmptyState, craftTypeLabel, CraftsmanStatusBadge } from '@/components/features/common/ui';
 import { LiveMap } from '@/components/features/common/live-map';
+import { ReviewCard } from '@/components/features/reviews/review-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -148,17 +149,12 @@ export default function CraftsmanDetailPage() {
                   <p className="text-sm text-gray-500">لا توجد تقييمات بعد.</p>
                 ) : (
                   reviews.map((r) => (
-                    <div key={r.id} className="rounded-lg border border-gray-100 p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((i) => (
-                            <Star key={i} className={i <= r.rating ? 'size-4 fill-yellow-400 text-yellow-400' : 'size-4 text-gray-300'} />
-                          ))}
-                        </div>
-                        <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('ar-EG')}</span>
-                      </div>
-                      {r.comment && <p className="mt-2 text-sm text-gray-700">{r.comment}</p>}
-                    </div>
+                    <ReviewCard
+                      key={r.id}
+                      rating={r.rating}
+                      comment={r.comment ?? ''}
+                      createdAt={new Date(r.createdAt).toLocaleDateString('ar-EG')}
+                    />
                   ))
                 )}
               </CardContent>

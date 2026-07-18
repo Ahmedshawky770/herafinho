@@ -4,6 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CircleCheck, Clock, TriangleAlert } from 'lucide-react';
 
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'معلّقة',
+  investigating: 'قيد التحقيق',
+  resolved: 'تم الحل',
+  dismissed: 'مرفوضة',
+};
+
 export function ComplaintTimeline({
   events,
 }: {
@@ -30,7 +37,7 @@ export function ComplaintTimeline({
                 <Icon className="size-5 text-gray-500" />
               </div>
               <div className="flex-1">
-                <p className="font-medium">{event.status}</p>
+                <p className="font-medium">{STATUS_LABELS[event.status] ?? event.status}</p>
                 <p className="text-sm text-gray-500">{event.note}</p>
                 <p className="text-xs text-gray-400">{event.at}</p>
               </div>

@@ -20,7 +20,7 @@ interface AuthSession {
 }
 
 function requireAdmin(session: AuthSession | null): asserts session is { user: { id: ID; role: string } } {
-  if (!session?.user || session.user.role !== 'admin') {
+  if (!session?.user || (session.user.role !== 'admin' && session.user.role !== 'super_admin')) {
     throw new ForbiddenError('Forbidden');
   }
 }

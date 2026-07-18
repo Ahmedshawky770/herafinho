@@ -1,6 +1,6 @@
 'use client';
 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { SidebarContent } from './sidebar';
@@ -22,6 +22,7 @@ export function MobileMenu() {
           }
         />
         <SheetContent side="right" className="w-72 p-0">
+          <SheetTitle className="sr-only">القائمة الرئيسية</SheetTitle>
           <SidebarContent role={user.role as UserRole} />
         </SheetContent>
       </Sheet>

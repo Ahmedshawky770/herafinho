@@ -12,9 +12,12 @@ async function getUserRepository() {
 }
 
 // Determines whether a user has completed onboarding based on their actual
-// state. Admins are exempt, and craftsmen who already have a profile are
-// considered complete. Existing users are backfilled so the flag stays
-// consistent with reality.
+// state. Admins are exempt. A craftsman is only considered done once an admin
+// has reviewed and accepted their profile. A pending/rejected craftsman stays
+// incomplete so they remain on the waiting screen and cannot reach the
+// dashboard. A frozen craftsman was already approved before being temporarily
+// penalised, so they keep dashboard access (their ability to receive orders is
+// restricted elsewhere). The persisted flag is kept in sync with this state.
 async function resolveOnboardingComplete(
   dbUser: { id: string; role: UserRole; onboardingComplete: boolean },
 ): Promise<boolean> {
@@ -22,16 +25,23 @@ async function resolveOnboardingComplete(
     return true;
   }
 
-  if (dbUser.role === 'craftsman' && !dbUser.onboardingComplete) {
+  if (dbUser.role === 'craftsman') {
     const { CraftsmanRepository } = await import('@herafino/shared/repositories/craftsman.repository');
     const craftsmanRepository = new CraftsmanRepository();
     const profile = await craftsmanRepository.findProfileByUserId(dbUser.id);
-    if (profile) {
+    // 'frozen' means the craftsman was approved earlier and is only temporarily
+    // penalised, so they retain dashboard access. 'banned' maps to a 'rejected'
+    // status in the repository, so it is handled by the default (incomplete).
+    const reviewedAndAccepted = profile?.status === 'approved' || profile?.status === 'frozen';
+
+    // Keep the persisted flag aligned with the current review state.
+    if (reviewedAndAccepted !== dbUser.onboardingComplete) {
       const { db } = await getUserRepository();
       const { users } = await import('@herafino/shared/db/schema');
-      await db.update(users).set({ onboardingComplete: true }).where(eq(users.id, dbUser.id));
-      return true;
+      await db.update(users).set({ onboardingComplete: reviewedAndAccepted }).where(eq(users.id, dbUser.id));
     }
+
+    return reviewedAndAccepted;
   }
 
   return dbUser.onboardingComplete;
