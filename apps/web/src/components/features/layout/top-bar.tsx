@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useWS } from '@/components/providers/ws-provider';
 import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { LogOut, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { MobileMenu } from '@/components/features/layout/mobile-menu';
@@ -59,13 +59,10 @@ export function TopBar() {
               <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
               <p className="mt-0.5 text-xs text-gray-500">{session?.user?.email}</p>
             </div>
-            <Avatar className="size-9">
-              <img
-                src={session?.user?.image ?? undefined}
-                alt={session?.user?.name ?? ''}
-                className="size-full rounded-full object-cover"
-              />
-            </Avatar>
+              <Avatar className="size-9">
+                <AvatarImage src={session?.user?.image ?? undefined} alt={session?.user?.name ?? ''} />
+                <AvatarFallback>{(session?.user?.name ?? '؟').charAt(0)}</AvatarFallback>
+              </Avatar>
           </div>
           <form action="/auth/signout" method="POST">
             <Button variant="ghost" size="icon" type="submit" aria-label="تسجيل الخروج">

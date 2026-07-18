@@ -21,8 +21,6 @@ async function fetchLocation(userId: string): Promise<Loc | null> {
   return json.data ?? null;
 }
 
-const DEFAULT_CENTER = { lat: 30.0444, lng: 31.2357 };
-
 export default function CraftsmanLocationPage() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();

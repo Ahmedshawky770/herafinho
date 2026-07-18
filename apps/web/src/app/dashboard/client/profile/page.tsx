@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { PageHeader } from '@/components/features/common/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { User, Mail, ShieldCheck, IdCard } from 'lucide-react';
 import type { UserRole } from '@herafino/types';
 
@@ -42,13 +42,10 @@ export default function ClientProfilePage() {
             <CardTitle className="text-right">الصورة</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center py-4">
-            <Avatar className="size-24">
-              <img
-                src={user?.image ?? undefined}
-                alt={user?.name ?? ''}
-                className="size-full rounded-full object-cover"
-              />
-            </Avatar>
+              <Avatar className="size-24">
+                <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ''} />
+                <AvatarFallback>{(user?.name ?? '؟').charAt(0)}</AvatarFallback>
+              </Avatar>
           </CardContent>
         </Card>
       </div>

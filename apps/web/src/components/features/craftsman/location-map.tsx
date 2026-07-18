@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
@@ -22,16 +21,11 @@ export function LocationMap({
   onChange?: (lat: number, lng: number) => void;
   selectable?: boolean;
 }) {
-  const [center, setCenter] = useState(DEFAULT_CENTER);
-  const [marker, setMarker] = useState<MapMarker | null>(null);
-
-  useEffect(() => {
-    if (lat !== null && lng !== null) {
-      setCenter({ lat, lng });
-      setMarker({ id: 'loc', lat, lng, draggable: selectable, popup: 'موقعك' });
-    }
-  }, [lat, lng, selectable]);
-
+  const hasCoords = lat !== null && lng !== null;
+  const center = hasCoords ? { lat, lng } : DEFAULT_CENTER;
+  const marker: MapMarker | null = hasCoords
+    ? { id: 'loc', lat, lng, draggable: selectable, popup: 'موقعك' }
+    : null;
   const markers: MapMarker[] = marker ? [marker] : [];
 
   return (
@@ -43,13 +37,13 @@ export function LocationMap({
         </CardTitle>
       </CardHeader>
       <CardContent className="text-right">
-        {lat !== null && lng !== null ? (
+        {hasCoords ? (
           <LiveMapDynamic
+            key={`${center.lat},${center.lng}`}
             center={center}
             markers={markers}
             scrollWheelZoom
             onMarkerDragEnd={(_id: string, nlat: number, nlng: number) => {
-              setMarker((m) => (m ? { ...m, lat: nlat, lng: nlng } : m));
               onChange?.(nlat, nlng);
             }}
           />

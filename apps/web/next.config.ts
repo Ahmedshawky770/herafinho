@@ -8,24 +8,6 @@ const require = createRequire(import.meta.url);
 loadEnv({ path: path.resolve(__dirname, '../../.env.local') });
 loadEnv({ path: path.resolve(__dirname, '../../.env') });
 
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'offlineCache',
-        expiration: {
-          maxEntries: 200,
-        },
-      },
-    },
-  ],
-});
-
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
@@ -90,7 +72,7 @@ config.resolve.alias['@herafino/types'] = path.resolve(
   },
 };
 
-export default withSentryConfig(withPWA(nextConfig), {
+export default withSentryConfig(nextConfig, {
   silent: true,
   tunnelRoute: '/_next',
   webpack: {
