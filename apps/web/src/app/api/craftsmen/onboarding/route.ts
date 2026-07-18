@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       workshopLongitude: parsed.data.workshopLongitude,
     });
 
-    await userRepository.update(userId, { role: 'craftsman' });
+    await userRepository.update(userId, { role: 'craftsman', onboardingComplete: true });
 
     return NextResponse.json({ data: profile }, { status: 201 });
   } catch (error) {

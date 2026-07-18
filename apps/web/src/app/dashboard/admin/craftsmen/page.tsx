@@ -5,7 +5,8 @@ import { PageHeader, EmptyState, CraftsmanStatusBadge, craftTypeLabel } from '@/
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { User, Check, X, Snowflake, Ban, RotateCcw } from 'lucide-react';
+import { User, Check, X, Snowflake, Ban, RotateCcw, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import type { CraftsmanStatus } from '@herafino/types';
 
@@ -82,7 +83,7 @@ export default function AdminCraftsmenPage() {
               {craftsmen.map((c) => (
                 <Card key={c.id}>
                   <CardContent className="space-y-3 p-4">
-                    <div className="flex items-start justify-between gap-2">
+                    <Link href={`/dashboard/admin/craftsmen/${c.id}`} className="flex items-start justify-between gap-2">
                       <div>
                         <p className="font-medium text-gray-900">{craftTypeLabel(c.craftType)}</p>
                         <p className="text-xs text-gray-500">
@@ -90,7 +91,8 @@ export default function AdminCraftsmenPage() {
                         </p>
                       </div>
                       <CraftsmanStatusBadge status={c.status} />
-                    </div>
+                      <ChevronLeft className="size-4 shrink-0 text-gray-300" />
+                    </Link>
                     <p className="text-sm text-gray-600 line-clamp-1">{c.workshopAddress}</p>
                     {c.freezeCount > 0 && (
                       <p className="text-xs text-amber-600">عدد التجميد: {c.freezeCount}</p>

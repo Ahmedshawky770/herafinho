@@ -1,8 +1,12 @@
 import type { NextConfig } from 'next';
 import { createRequire } from 'module';
 import path from 'path';
+import { config as loadEnv } from 'dotenv';
 import { withSentryConfig } from '@sentry/nextjs';
 const require = createRequire(import.meta.url);
+
+loadEnv({ path: path.resolve(__dirname, '../../.env.local') });
+loadEnv({ path: path.resolve(__dirname, '../../.env') });
 
 const withPWA = require('next-pwa')({
   dest: 'public',

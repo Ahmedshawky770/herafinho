@@ -59,7 +59,7 @@ export function TopBar() {
             </div>
             <Avatar className="size-9">
               <img
-                src={session?.user?.image ?? ''}
+                src={session?.user?.image ?? undefined}
                 alt={session?.user?.name ?? ''}
                 className="size-full rounded-full object-cover"
               />

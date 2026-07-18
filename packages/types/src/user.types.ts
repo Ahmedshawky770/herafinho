@@ -49,6 +49,7 @@ export interface User {
   image: string;
   googleId: string;
   role: UserRole;
+  onboardingComplete: boolean;
   phone?: string;
   age?: number;
   bannedAt?: Date;

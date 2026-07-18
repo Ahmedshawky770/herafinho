@@ -27,61 +27,71 @@ export function useFileUpload({ fileType, onSuccess, onError }: UseFileUploadOpt
     error: null,
   });
 
-  const upload = useCallback(async (file: File) => {
-    setState({ uploading: true, progress: 0, url: null, error: null });
+  const upload = useCallback(
+    async (file: File) => {
+      setState({ uploading: true, progress: 0, url: null, error: null });
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileType', fileType);
-
-      const xhr = new XMLHttpRequest();
-
-      const uploadPromise = new Promise<string>((resolve, reject) => {
-        xhr.upload.addEventListener('progress', (event) => {
-          if (event.lengthComputable) {
-            const progress = Math.round((event.loaded / event.total) * 100);
-            setState((prev) => ({ ...prev, progress }));
-          }
+      try {
+        const presignedRes = await fetch('/api/upload/presigned', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileType, contentType: file.type }),
         });
 
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const response = JSON.parse(xhr.responseText);
-              resolve(response.url);
-            } catch {
-              reject(new Error('Invalid response from server'));
+        if (!presignedRes.ok) {
+          const err = await presignedRes.json().catch(() => ({}));
+          throw new Error(err.error || `فشل رفع الملف (${presignedRes.status})`);
+        }
+
+        const { uploadUrl, fileUrl } = (await presignedRes.json()) as {
+          uploadUrl: string;
+          fileUrl: string;
+        };
+
+        const xhr = new XMLHttpRequest();
+        const uploadPromise = new Promise<string>((resolve, reject) => {
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 100);
+              setState((prev) => ({ ...prev, progress }));
             }
-          } else {
-            let errorMessage = `Upload failed with status ${xhr.status}`;
-            try {
-              const error = JSON.parse(xhr.responseText);
-              errorMessage = error.error || errorMessage;
-            } catch {
-              // ignore
+          });
+
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(fileUrl);
+            } else {
+              let errorMessage = `Upload failed with status ${xhr.status}`;
+              try {
+                const error = JSON.parse(xhr.responseText);
+                errorMessage = error.error || errorMessage;
+              } catch {
+                // ignore
+              }
+              reject(new Error(errorMessage));
             }
-            reject(new Error(errorMessage));
-          }
+          });
+
+          xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+          xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+
+          xhr.open('PUT', uploadUrl);
+          xhr.setRequestHeader('Content-Type', file.type);
+          xhr.send(file);
         });
 
-        xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
-        xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
-
-        xhr.open('POST', '/api/upload/multipart');
-        xhr.send(formData);
-      });
-
-      const url = await uploadPromise;
-      setState({ uploading: false, progress: 100, url, error: null });
-      onSuccess?.(url);
-      return;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Upload failed');
-      setState({ uploading: false, progress: 0, url: null, error: error.message });
-      onError?.(error);
-    }
-  }, [fileType, onSuccess, onError]);
+        const url = await uploadPromise;
+        setState({ uploading: false, progress: 100, url, error: null });
+        onSuccess?.(url);
+        return;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Upload failed');
+        setState({ uploading: false, progress: 0, url: null, error: error.message });
+        onError?.(error);
+      }
+    },
+    [fileType, onSuccess, onError]
+  );
 
   return [state, upload];
 }

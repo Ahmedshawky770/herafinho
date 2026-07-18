@@ -1,13 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 /* ===== Harfino Global Styles ===== */
 /* Author: Ahmed Shawky */
 /* Description: RTL-first Arabic design system */
 
-/* ===== Base Styles ===== */
-:root {
+/* ===== Theme (Tailwind v4) ===== */
+@theme {
   --color-primary: #10b981;
   --color-primary-50: #ecfdf5;
   --color-primary-100: #d1fae5;

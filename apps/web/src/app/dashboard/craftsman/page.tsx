@@ -66,7 +66,7 @@ export default function CraftsmanDashboard() {
           title="لم تكمل ملف الحرفي بعد"
           description="أكمل بياناتك ووثائقك لتتمكن من استقبال الطلبات"
           action={
-            <Link href="/dashboard/craftsman/profile">
+            <Link href="/dashboard/craftsman/onboarding">
               <Button>إكمال الملف الشخصي</Button>
             </Link>
           }

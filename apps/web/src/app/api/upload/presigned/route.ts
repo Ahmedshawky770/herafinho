@@ -32,10 +32,12 @@ export async function POST(request: Request) {
 
     const key = `uploads/${session.user.id}/${Date.now()}`;
     const signedUrl = await storage.getUploadUrl(key, contentType);
+    const fileUrl = `${process.env.AWS_CDN_URL}/${key}`;
 
     return NextResponse.json({
       uploadUrl: signedUrl,
       fileKey: key,
+      fileUrl,
       expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
     });
   } catch {

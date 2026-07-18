@@ -17,6 +17,7 @@ import {
   Bell,
   Home,
   Webhook,
+  UserPlus,
 } from 'lucide-react';
 import type { UserRole } from '@herafino/types';
 
@@ -38,7 +39,7 @@ const ROLE_ITEMS: Record<UserRole, { title: string; items: NavItem[] }> = {
     title: 'التحكم الكامل',
     items: [
       { label: 'الرئيسية', href: '/dashboard/super_admin', icon: LayoutDashboard },
-      { label: 'الإحصائيات', href: '/dashboard/super-admin/stats', icon: Star },
+      { label: 'الإحصائيات', href: '/dashboard/super_admin/stats', icon: Star },
       { label: 'الحرفيون', href: '/dashboard/admin/craftsmen', icon: User },
       { label: 'الشكاوى', href: '/dashboard/admin/complaints', icon: ShieldCheck },
       { label: 'Webhooks', href: '/dashboard/admin/webhooks', icon: Webhook },
@@ -48,6 +49,7 @@ const ROLE_ITEMS: Record<UserRole, { title: string; items: NavItem[] }> = {
     title: 'لوحة الحرفي',
     items: [
       { label: 'الرئيسية', href: '/dashboard/craftsman', icon: LayoutDashboard },
+      { label: 'إعداد الحساب', href: '/dashboard/craftsman/onboarding', icon: UserPlus },
       { label: 'طلباتي', href: '/dashboard/craftsman/orders', icon: ClipboardList },
       { label: 'موقعي', href: '/dashboard/craftsman/location', icon: MapPin },
       { label: 'الملف الشخصي', href: '/dashboard/craftsman/profile', icon: User },

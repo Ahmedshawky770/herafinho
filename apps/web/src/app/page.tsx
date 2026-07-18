@@ -8,6 +8,12 @@ export default async function Home() {
 
   if (session) {
     const role = (session.user as { role?: string })?.role ?? 'client';
+    const onboardingComplete = (session.user as { onboardingComplete?: boolean })?.onboardingComplete ?? false;
+    // Onboarding is mandatory: send users who have not finished onboarding to
+    // their onboarding flow instead of the dashboard.
+    if (!onboardingComplete) {
+      redirect(role === 'craftsman' ? '/dashboard/craftsman/onboarding' : '/choose-account');
+    }
     redirect(`/dashboard/${role}`);
   }
 

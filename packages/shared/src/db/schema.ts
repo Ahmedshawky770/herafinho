@@ -14,6 +14,7 @@ export const users = pgTable('users', {
   })
     .default('client')
     .notNull(),
+  onboardingComplete: boolean('onboarding_complete').default(false).notNull(),
   phone: text('phone'),
   age: integer('age'),
   bannedAt: timestamp('banned_at'),
