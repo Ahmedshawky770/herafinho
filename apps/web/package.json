@@ -17,8 +17,7 @@
     "docker:dev": "docker compose -f ../../docker-compose.yml up -d postgres valkey",
     "docker:down": "docker compose -f ../../docker-compose.yml down",
     "ws": "tsx src/ws/index.ts",
-    "ws:dev": "tsx --watch src/ws/index.ts",
-    "prepare": "husky install 2>/dev/null || true"
+    "ws:dev": "tsx --watch src/ws/index.ts"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
