@@ -1,4 +1,10 @@
-import type { ID, CraftsmanProfile, NewCraftsmanProfile, CraftsmanStatus } from '@herafino/types';
+import type {
+  ID,
+  CraftsmanProfile,
+  NewCraftsmanProfile,
+  CraftsmanStatus,
+  CraftType,
+} from "@herafino/types";
 
 export interface ICraftsmanRepository {
   findProfileByUserId(userId: ID): Promise<CraftsmanProfile | null>;
@@ -19,4 +25,5 @@ export interface ICraftsmanRepository {
     lng: string,
     radiusKm: number
   ): Promise<CraftsmanProfile[]>;
+  searchByNameOrCraft(query: string, craftType?: CraftType): Promise<CraftsmanProfile[]>;
 }
