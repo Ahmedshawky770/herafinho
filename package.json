@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "prepare": "husky || true",
+    "prepare": "husky install 2>/dev/null || true",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
