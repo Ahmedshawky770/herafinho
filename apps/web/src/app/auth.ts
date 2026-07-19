@@ -1,18 +1,18 @@
-import NextAuth, { type DefaultSession } from 'next-auth';
-import Google from 'next-auth/providers/google';
-import { getServerSession } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
-import type { CallbacksOptions, Profile, User } from 'next-auth';
-import { logger } from '@herafino/shared/logger/factory';
-import { eq } from 'drizzle-orm';
-import type { UserRole } from '@herafino/types';
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import { getServerSession } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import type { CallbacksOptions } from "next-auth";
+import { logger } from "@herafino/shared/logger/factory";
+import { eq } from "drizzle-orm";
+import type { UserRole } from "@herafino/types";
 
-type JwtCallbackParams = Parameters<NonNullable<CallbacksOptions['jwt']>>[0];
-type SessionCallbackParams = Parameters<NonNullable<CallbacksOptions['session']>>[0];
+type JwtCallbackParams = Parameters<NonNullable<CallbacksOptions["jwt"]>>[0];
+type SessionCallbackParams = Parameters<NonNullable<CallbacksOptions["session"]>>[0];
 
 async function getUserRepository() {
-  const { db } = await import('@herafino/shared/db');
-  const { users } = await import('@herafino/shared/db/schema');
+  const { db } = await import("@herafino/shared/db");
+  const { users } = await import("@herafino/shared/db/schema");
   return { db, users };
 }
 
@@ -23,27 +23,33 @@ async function getUserRepository() {
 // dashboard. A frozen craftsman was already approved before being temporarily
 // penalised, so they keep dashboard access (their ability to receive orders is
 // restricted elsewhere). The persisted flag is kept in sync with this state.
-async function resolveOnboardingComplete(
-  dbUser: { id: string; role: UserRole; onboardingComplete: boolean },
-): Promise<boolean> {
-  if (dbUser.role === 'admin' || dbUser.role === 'super_admin') {
+async function resolveOnboardingComplete(dbUser: {
+  id: string;
+  role: UserRole;
+  onboardingComplete: boolean;
+}): Promise<boolean> {
+  if (dbUser.role === "admin" || dbUser.role === "super_admin") {
     return true;
   }
 
-  if (dbUser.role === 'craftsman') {
-    const { CraftsmanRepository } = await import('@herafino/shared/repositories/craftsman.repository');
+  if (dbUser.role === "craftsman") {
+    const { CraftsmanRepository } =
+      await import("@herafino/shared/repositories/craftsman.repository");
     const craftsmanRepository = new CraftsmanRepository();
     const profile = await craftsmanRepository.findProfileByUserId(dbUser.id);
     // 'frozen' means the craftsman was approved earlier and is only temporarily
     // penalised, so they retain dashboard access. 'banned' maps to a 'rejected'
     // status in the repository, so it is handled by the default (incomplete).
-    const reviewedAndAccepted = profile?.status === 'approved' || profile?.status === 'frozen';
+    const reviewedAndAccepted = profile?.status === "approved" || profile?.status === "frozen";
 
     // Keep the persisted flag aligned with the current review state.
     if (reviewedAndAccepted !== dbUser.onboardingComplete) {
       const { db } = await getUserRepository();
-      const { users } = await import('@herafino/shared/db/schema');
-      await db.update(users).set({ onboardingComplete: reviewedAndAccepted }).where(eq(users.id, dbUser.id));
+      const { users } = await import("@herafino/shared/db/schema");
+      await db
+        .update(users)
+        .set({ onboardingComplete: reviewedAndAccepted })
+        .where(eq(users.id, dbUser.id));
     }
 
     return reviewedAndAccepted;
@@ -74,13 +80,13 @@ async function syncTokenFromDatabase(token: JWT): Promise<void> {
       token.image = dbUser.image;
     }
   } catch (error) {
-    logger.error({ error }, 'Failed to sync JWT from database');
+    logger.error({ error }, "Failed to sync JWT from database");
   } finally {
     token.onboardingSyncedAt = Date.now();
   }
 }
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
     user: {
       id: string;
@@ -94,7 +100,7 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
     userId?: string;
     googleId?: string;
@@ -120,31 +126,37 @@ export const authOptions = {
         const googleId = (profile as { sub?: string } | undefined)?.sub ?? user.id;
         const { db, users } = await getUserRepository();
 
-        const [dbUser] = await db.select().from(users).where(eq(users.googleId, googleId ?? ''));
+        const [dbUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.googleId, googleId ?? ""));
 
         if (!dbUser) {
-          const isFirstAdmin = process.env.FIRST_USER_ADMIN === 'true';
-          const role: UserRole = isFirstAdmin ? 'admin' : 'client';
+          const isFirstAdmin = process.env.FIRST_USER_ADMIN === "true";
+          const role: UserRole = isFirstAdmin ? "admin" : "client";
 
-          const [created] = await db.insert(users).values({
-            email: user.email ?? '',
-            emailVerified: true,
-            name: user.name ?? '',
-            image: user.image ?? '',
-            googleId: googleId ?? '',
-            role,
-            onboardingComplete: isFirstAdmin,
-          }).returning();
+          const [created] = await db
+            .insert(users)
+            .values({
+              email: user.email ?? "",
+              emailVerified: true,
+              name: user.name ?? "",
+              image: user.image ?? "",
+              googleId: googleId ?? "",
+              role,
+              onboardingComplete: isFirstAdmin,
+            })
+            .returning();
 
-          logger.info({ userId: created.id, role }, 'Created new user via Google OAuth');
+          logger.info({ userId: created.id, role }, "Created new user via Google OAuth");
 
           token.userId = created.id;
           token.googleId = googleId;
           token.role = created.role;
           token.onboardingComplete = created.onboardingComplete;
-          token.email = user.email ?? '';
-          token.name = user.name ?? '';
-          token.image = user.image ?? '';
+          token.email = user.email ?? "";
+          token.name = user.name ?? "";
+          token.image = user.image ?? "";
         } else {
           const onboardingComplete = await resolveOnboardingComplete(dbUser);
 
@@ -168,7 +180,7 @@ export const authOptions = {
       //  - Otherwise refresh periodically so DB changes propagate on their own.
       if (!user && token.userId) {
         const needsSync =
-          trigger === 'update' ||
+          trigger === "update" ||
           token.onboardingSyncedAt === undefined ||
           Date.now() - token.onboardingSyncedAt > TOKEN_SYNC_INTERVAL_MS;
 
@@ -180,19 +192,19 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }: SessionCallbackParams) {
-      session.user.id = token.userId ?? '';
-      session.user.googleId = token.googleId ?? '';
-      session.user.role = token.role ?? 'client';
+      session.user.id = token.userId ?? "";
+      session.user.googleId = token.googleId ?? "";
+      session.user.role = token.role ?? "client";
       session.user.onboardingComplete = token.onboardingComplete ?? false;
-      session.user.email = token.email ?? '';
-      session.user.name = token.name ?? '';
-      session.user.image = token.image ?? '';
+      session.user.email = token.email ?? "";
+      session.user.name = token.name ?? "";
+      session.user.image = token.image ?? "";
 
       return session;
     },
   },
   session: {
-    strategy: 'jwt' as const,
+    strategy: "jwt" as const,
     maxAge: 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
@@ -200,4 +212,4 @@ export const authOptions = {
 
 export const auth = async () => getServerSession(authOptions);
 export const handlers = NextAuth(authOptions);
-export { signIn, signOut } from 'next-auth/react';
+export { signIn, signOut } from "next-auth/react";
