@@ -61,12 +61,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (pathname.startsWith('/dashboard/super-admin')) {
-    if (!session?.user || (session.user as { role?: string } | undefined)?.role !== 'super_admin') {
-      return NextResponse.redirect(new URL('/unauthorized', request.url));
-    }
-  }
-
   if (pathname.startsWith('/dashboard/craftsman')) {
     if (!session?.user || (session.user as { role?: string } | undefined)?.role !== 'craftsman') {
       return NextResponse.redirect(new URL('/unauthorized', request.url));

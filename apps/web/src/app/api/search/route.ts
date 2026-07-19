@@ -39,10 +39,16 @@ export async function GET(request: Request) {
     }
 
     if (query) {
-      return NextResponse.json({ data: [], message: 'Text search not yet implemented' });
+      const results = await craftsmanRepository.searchByNameOrCraft(query, craftType ?? undefined);
+      return NextResponse.json({ data: results });
     }
 
-    const profiles = await craftsmanRepository.findApprovedByCraftType('carpenter', '0', '0', 50);
+    const profiles = await craftsmanRepository.findApprovedByCraftType(
+      (craftType ?? 'carpenter') as CraftType,
+      '0',
+      '0',
+      50,
+    );
     return NextResponse.json({ data: profiles });
   } catch (error) {
     logger.error({ error }, 'GET /api/search failed');

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+// Intentionally public: this endpoint is polled by the orchestrator / load
+// balancer (Docker healthcheck, k8s liveness/readiness) and must not require
+// authentication. It only reports aggregate component status, never secrets.
 export async function GET() {
   try {
     const checks = {
@@ -14,14 +17,16 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         checks,
       },
-      { status: allHealthy ? 200 : 503 }
+      { status: allHealthy ? 200 : 503, headers: { 'Cache-Control': 'no-store' } }
     );
   } catch (error) {
     return NextResponse.json(
       {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : String(error),
+        // Never leak internal error details to unauthenticated callers; the
+        // full error is already captured by Sentry for operators.
+        error: process.env.NODE_ENV === 'production' ? 'internal error' : error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );

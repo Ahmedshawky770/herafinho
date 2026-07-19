@@ -1,9 +1,14 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type DefaultSession } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import { getServerSession } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
+import type { CallbacksOptions, Profile, User } from 'next-auth';
 import { logger } from '@herafino/shared/logger/factory';
 import { eq } from 'drizzle-orm';
 import type { UserRole } from '@herafino/types';
+
+type JwtCallbackParams = Parameters<NonNullable<CallbacksOptions['jwt']>>[0];
+type SessionCallbackParams = Parameters<NonNullable<CallbacksOptions['session']>>[0];
 
 async function getUserRepository() {
   const { db } = await import('@herafino/shared/db');
@@ -56,8 +61,7 @@ const TOKEN_SYNC_INTERVAL_MS = 60 * 1000;
 // Re-reads the user's current role/onboarding state from the database and writes
 // it back onto the JWT. Safe to call on every request; it no-ops on failure so a
 // transient DB issue never logs the user out.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function syncTokenFromDatabase(token: any): Promise<void> {
+async function syncTokenFromDatabase(token: JWT): Promise<void> {
   if (!token.userId) return;
   try {
     const { db, users } = await getUserRepository();
@@ -111,8 +115,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async jwt({ token, user, profile, trigger }: any) {
+    async jwt({ token, user, profile, trigger }: JwtCallbackParams) {
       if (user) {
         const googleId = (profile as { sub?: string } | undefined)?.sub ?? user.id;
         const { db, users } = await getUserRepository();
@@ -176,8 +179,7 @@ export const authOptions = {
 
       return token;
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async session({ session, token }: any) {
+    async session({ session, token }: SessionCallbackParams) {
       session.user.id = token.userId ?? '';
       session.user.googleId = token.googleId ?? '';
       session.user.role = token.role ?? 'client';
