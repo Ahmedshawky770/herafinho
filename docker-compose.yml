@@ -1,11 +1,11 @@
 # Harfino Development Environment
 # Docker Compose for local development
 
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgis/postgis:16-3.4-alpine
     container_name: harfino_postgres
     restart: unless-stopped
     environment:

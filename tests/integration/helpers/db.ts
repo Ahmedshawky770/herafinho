@@ -1,7 +1,7 @@
-import { beforeAll, afterAll, beforeEach } from 'vitest';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from '@herafino/shared/db/schema';
+import { beforeAll, afterAll, beforeEach } from "vitest";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "@herafino/shared/db/schema";
 
 export interface DbTestContext {
   db: ReturnType<typeof drizzle>;
@@ -9,8 +9,7 @@ export interface DbTestContext {
 }
 
 const TEST_DATABASE_URL =
-  process.env.DATABASE_URL ??
-  'postgres://herafino:password@localhost:5432/herafino_test';
+  process.env.DATABASE_URL ?? "postgres://herafino:password@localhost:5432/herafino_test";
 
 /**
  * Detects whether a real integration database is reachable.
@@ -60,20 +59,23 @@ export function setupIntegrationDatabase() {
 }
 
 const TABLES = [
-  'notifications',
-  'reviews',
-  'complaints',
-  'orders',
-  'craftsman_locations',
-  'craftsman_profiles',
-  'event_outbox',
-  'users',
+  "notifications",
+  "reviews",
+  "complaints",
+  "orders",
+  "craftsman_locations",
+  "craftsman_profiles",
+  "event_outbox",
+  "audit_logs",
+  "users",
 ] as const;
 
 export async function truncateAll(db: ReturnType<typeof drizzle>) {
-  for (const table of TABLES) {
-    await db.execute(`TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`);
-  }
+  // Truncate every table in a single statement with CASCADE so foreign-key
+  // dependencies are cleared atomically. Issuing separate TRUNCATEs per table
+  // from parallel test files causes AccessExclusiveLock deadlocks.
+  const list = TABLES.map((t) => `"${t}"`).join(", ");
+  await db.execute(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
 }
 
 export function withCleanDatabase(ctx: DbTestContext) {
@@ -82,7 +84,7 @@ export function withCleanDatabase(ctx: DbTestContext) {
   });
 }
 
-export function randomId(prefix = 't'): string {
+export function randomId(prefix = "t"): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 12)}`;
 }
 
@@ -92,6 +94,7 @@ export function randomId(prefix = 't'): string {
  * `DATABASE_URL` is configured — which CI does. Locally they are gracefully
  * skipped so `npm run test` stays green and fast without infrastructure.
  */
-export const RUN_INTEGRATION = process.env.RUN_INTEGRATION === '1' && Boolean(process.env.DATABASE_URL);
+export const RUN_INTEGRATION =
+  process.env.RUN_INTEGRATION === "1" && Boolean(process.env.DATABASE_URL);
 
 export const describeIntegration = RUN_INTEGRATION ? describe : describe.skip;

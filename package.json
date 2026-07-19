@@ -16,7 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage",
     "test:all": "npm run test:unit && npm run test:integration",
@@ -33,7 +33,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
+      "eslint --fix --config apps/web/eslint.config.mjs",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [
@@ -45,6 +45,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1088.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7",
     "@playwright/test": "^1.61.1",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/coverage-v8": "^4.1.10",

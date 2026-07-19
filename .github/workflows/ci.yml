@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - run: npm ci
       - run: npm run lint
 
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - run: npm ci
       - run: npm run typecheck
 
@@ -62,7 +62,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - run: npm ci
       - run: npx turbo run build
       - name: Apply database migrations
@@ -72,20 +72,106 @@ jobs:
       - name: Test (npm test)
         run: npm test
         env:
-          RUN_INTEGRATION: '1'
+          RUN_INTEGRATION: "1"
           DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
           VALKEY_URL: redis://localhost:6379
 
-  build:
-    name: Build
+  security:
+    name: Security (SAST & Dependencies)
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+
+      # 1) Known-vulnerability scan of the dependency tree.
+      - name: npm audit (dependency vulnerabilities)
+        run: npm audit --audit-level=high || true
+
+      # 2) SAST: scan first-party source for insecure patterns.
+      - name: Semgrep (static analysis)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/default
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      # 3) Secret scanning: detect accidentally committed credentials.
+      - name: Gitleaks (secret detection)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: herafino
+          POSTGRES_PASSWORD: herafino
+          POSTGRES_DB: herafino
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      valkey:
+        image: valkey/valkey:8.0.0
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox
+      - name: Apply database migrations
+        run: npx drizzle-kit migrate --config packages/shared/drizzle.config.json
+        env:
+          DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
+          VALKEY_URL: redis://localhost:6379
+          NEXTAUTH_SECRET: ci-e2e-secret
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          NEXT_PUBLIC_WS_URL: ws://localhost:3001
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, security, e2e]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
       - run: npm ci
       - run: npx turbo run build
 
@@ -97,6 +183,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - run: npm ci
       - run: npx turbo run db:generate

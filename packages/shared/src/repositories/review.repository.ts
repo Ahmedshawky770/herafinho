@@ -1,16 +1,11 @@
-import type {
-  ID,
-  NewReview,
-  Review,
-  CraftsmanProfile,
-} from '@herafino/types';
-import type { IReviewRepository } from '@herafino/contracts';
-import { eq, and } from 'drizzle-orm';
-import { logger } from '../logger/factory';
-import { db } from '../db';
-import { reviews } from '../db/schema';
-import type { DomainEvent } from '@herafino/types';
-import { OutboxRepository } from '../events/outbox-repository';
+import type { ID, NewReview, Review } from "@herafino/types";
+import type { IReviewRepository } from "@herafino/contracts";
+import { eq } from "drizzle-orm";
+import { logger } from "../logger/factory";
+import { db } from "../db";
+import { reviews } from "../db/schema";
+import type { DomainEvent } from "@herafino/types";
+import { OutboxRepository } from "../events/outbox-repository";
 
 function toDomain(review: typeof reviews.$inferSelect): Review {
   return {
@@ -19,7 +14,9 @@ function toDomain(review: typeof reviews.$inferSelect): Review {
   };
 }
 
-function buildEvent(event: Omit<DomainEvent, 'id' | 'metadata'> & { metadata: DomainEvent['metadata'] }): DomainEvent {
+function buildEvent(
+  event: Omit<DomainEvent, "id" | "metadata"> & { metadata: DomainEvent["metadata"] }
+): DomainEvent {
   return { id: crypto.randomUUID(), ...event };
 }
 
@@ -64,10 +61,10 @@ export class ReviewRepository implements IReviewRepository {
 
   async create(review: NewReview): Promise<Review> {
     const [created] = await db.insert(reviews).values(review).returning();
-    logger.info({ reviewId: created.id, orderId: created.orderId }, 'Review created');
+    logger.info({ reviewId: created.id, orderId: created.orderId }, "Review created");
     await this.appendOutbox(
       buildEvent({
-        name: 'review.created',
+        name: "review.created",
         payload: {
           reviewId: created.id,
           orderId: created.orderId,

@@ -6,17 +6,9 @@ import type {
   CraftType,
   TransportType,
   CraftsmanStatus,
-} from './user.types';
+} from "./user.types";
 
-export type {
-  User,
-  UserRole,
-  NewUser,
-  ID,
-  CraftType,
-  TransportType,
-  CraftsmanStatus,
-};
+export type { User, UserRole, NewUser, ID, CraftType, TransportType, CraftsmanStatus };
 
 export interface CraftsmanProfile {
   id: ID;
@@ -35,7 +27,7 @@ export interface CraftsmanProfile {
   isAvailable: boolean;
   isOnline: boolean;
   status: CraftsmanStatus;
-  freezeUntil?: Date;
+  freezeUntil?: Date | null;
   freezeReason?: string;
   freezeCount: number;
   rejectionReason?: string;

@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { UserRepository } from '@herafino/shared/repositories/user.repository';
-import { CraftsmanRepository } from '@herafino/shared/repositories/craftsman.repository';
-import { setupIntegrationDatabase, withCleanDatabase, randomId } from './helpers/db';
-import { describeIntegration } from './helpers/db';
-import { craftsmanProfiles } from '@herafino/shared/db/schema';
-import type { NewCraftsmanProfile } from '@herafino/types';
+import { it, expect } from "vitest";
+import { UserRepository } from "@herafino/shared/repositories/user.repository";
+import { CraftsmanRepository } from "@herafino/shared/repositories/craftsman.repository";
+import { setupIntegrationDatabase, withCleanDatabase, randomId } from "./helpers/db";
+import { describeIntegration } from "./helpers/db";
+import { craftsmanProfiles } from "@herafino/shared/db/schema";
+import type { NewCraftsmanProfile } from "@herafino/types";
 
 const ctx = setupIntegrationDatabase();
 withCleanDatabase(ctx);
@@ -12,33 +12,33 @@ withCleanDatabase(ctx);
 async function seedCraftsman(overrides: Partial<NewCraftsmanProfile> = {}) {
   const user = await new UserRepository().create({
     email: `${randomId()}@example.com`,
-    name: 'Craft',
-    image: 'http://example.com/c.png',
-    role: 'craftsman',
+    name: "Craft",
+    image: "http://example.com/c.png",
+    role: "craftsman",
   });
   return new CraftsmanRepository().createProfile({
     userId: user.id,
-    craftType: 'plumber',
+    craftType: "plumber",
     experienceYears: 4,
-    idCardFrontUrl: 'front',
-    idCardBackUrl: 'back',
-    facePhotoUrl: 'face',
-    workshopAddress: 'Cairo',
-    workshopLatitude: '30.0444',
-    workshopLongitude: '31.2357',
+    idCardFrontUrl: "front",
+    idCardBackUrl: "back",
+    facePhotoUrl: "face",
+    workshopAddress: "Cairo",
+    workshopLatitude: "30.0444",
+    workshopLongitude: "31.2357",
     ...overrides,
   });
 }
 
-describeIntegration('CraftsmanRepository (integration)', () => {
-  it('creates a profile linked to a user', async () => {
+describeIntegration("CraftsmanRepository (integration)", () => {
+  it("creates a profile linked to a user", async () => {
     const profile = await seedCraftsman();
     expect(profile.id).toBeTruthy();
-    expect(profile.status).toBe('pending');
+    expect(profile.status).toBe("pending");
     expect(profile.transportPhotos).toEqual([]);
   });
 
-  it('finds a profile by user id and by profile id', async () => {
+  it("finds a profile by user id and by profile id", async () => {
     const profile = await seedCraftsman();
     const byUser = await new CraftsmanRepository().findProfileByUserId(profile.userId);
     const byId = await new CraftsmanRepository().findProfileById(profile.id);
@@ -46,111 +46,201 @@ describeIntegration('CraftsmanRepository (integration)', () => {
     expect(byId?.userId).toBe(profile.userId);
   });
 
-  it('updates a profile and tracks changed fields', async () => {
+  it("updates a profile and tracks changed fields", async () => {
     const profile = await seedCraftsman();
-    const updated = await new CraftsmanRepository().updateProfile(profile.userId, { isAvailable: true });
+    const updated = await new CraftsmanRepository().updateProfile(profile.userId, {
+      isAvailable: true,
+    });
     expect(updated.isAvailable).toBe(true);
   });
 
-  it('throws when updating a missing profile', async () => {
-    await expect(new CraftsmanRepository().updateProfile('missing-user', { isAvailable: true })).rejects.toThrow();
+  it("throws when updating a missing profile", async () => {
+    await expect(
+      new CraftsmanRepository().updateProfile("missing-user", { isAvailable: true })
+    ).rejects.toThrow();
   });
 
-  it('approves a profile', async () => {
+  it("approves a profile", async () => {
     const profile = await seedCraftsman();
     const admin = await new UserRepository().create({
       email: `${randomId()}@example.com`,
-      name: 'Admin',
-      image: 'i',
-      role: 'admin',
+      name: "Admin",
+      image: "i",
+      role: "admin",
     });
     await new CraftsmanRepository().approve(profile.id, admin.id);
     const approved = await new CraftsmanRepository().findProfileById(profile.id);
-    expect(approved?.status).toBe('approved');
+    expect(approved?.status).toBe("approved");
     expect(approved?.reviewedBy).toBe(admin.id);
   });
 
-  it('rejects a profile with a reason', async () => {
+  it("completes onboarding for the user on approval", async () => {
     const profile = await seedCraftsman();
     const admin = await new UserRepository().create({
       email: `${randomId()}@example.com`,
-      name: 'Admin',
-      image: 'i',
-      role: 'admin',
+      name: "Admin",
+      image: "i",
+      role: "admin",
     });
-    await new CraftsmanRepository().reject(profile.id, 'bad_docs', admin.id);
-    const rejected = await new CraftsmanRepository().findProfileById(profile.id);
-    expect(rejected?.status).toBe('rejected');
-    expect(rejected?.rejectionReason).toBe('bad_docs');
+    const before = await new UserRepository().findById(profile.userId);
+    expect(before?.onboardingComplete).toBe(false);
+
+    await new CraftsmanRepository().approve(profile.id, admin.id);
+
+    const after = await new UserRepository().findById(profile.userId);
+    expect(after?.onboardingComplete).toBe(true);
   });
 
-  it('freezes and unfreezes a profile', async () => {
+  it("rejects a profile with a reason", async () => {
     const profile = await seedCraftsman();
     const admin = await new UserRepository().create({
       email: `${randomId()}@example.com`,
-      name: 'Admin',
-      image: 'i',
-      role: 'admin',
+      name: "Admin",
+      image: "i",
+      role: "admin",
     });
-    const frozen = await new CraftsmanRepository().freeze(profile.id, new Date(Date.now() + 86400000), 'late', admin.id);
+    await new CraftsmanRepository().reject(profile.id, "bad_docs", admin.id);
+    const rejected = await new CraftsmanRepository().findProfileById(profile.id);
+    expect(rejected?.status).toBe("rejected");
+    expect(rejected?.rejectionReason).toBe("bad_docs");
+
+    const user = await new UserRepository().findById(profile.userId);
+    expect(user?.onboardingComplete).toBe(false);
+  });
+
+  it("freezes and unfreezes a profile", async () => {
+    const profile = await seedCraftsman();
+    const admin = await new UserRepository().create({
+      email: `${randomId()}@example.com`,
+      name: "Admin",
+      image: "i",
+      role: "admin",
+    });
+    const frozen = await new CraftsmanRepository().freeze(
+      profile.id,
+      new Date(Date.now() + 86400000),
+      "late",
+      admin.id
+    );
     expect(frozen.freezeUntil).toBeTruthy();
     expect(frozen.freezeCount).toBeGreaterThanOrEqual(1);
 
     const unfrozen = await new CraftsmanRepository().unfreeze(profile.id, admin.id);
-    expect(unfrozen.status).toBe('pending');
+    expect(unfrozen.status).toBe("pending");
     expect(unfrozen.freezeUntil).toBeNull();
   });
 
-  it('lists pending profiles', async () => {
+  it("lists pending profiles", async () => {
     await seedCraftsman();
     const pending = await new CraftsmanRepository().getPendingProfiles();
     expect(pending.length).toBeGreaterThanOrEqual(1);
-    expect(pending.every((p) => p.status === 'pending')).toBe(true);
+    expect(pending.every((p) => p.status === "pending")).toBe(true);
   });
 
-  it('finds approved craftsmen by craft type', async () => {
+  it("finds approved craftsmen by craft type", async () => {
     const profile = await seedCraftsman({ isAvailable: true });
     const admin = await new UserRepository().create({
       email: `${randomId()}@example.com`,
-      name: 'Admin',
-      image: 'i',
-      role: 'admin',
+      name: "Admin",
+      image: "i",
+      role: "admin",
     });
     await new CraftsmanRepository().approve(profile.id, admin.id);
-    const found = await new CraftsmanRepository().findApprovedByCraftType('plumber', '0', '0', 100);
+    const found = await new CraftsmanRepository().findApprovedByCraftType("plumber", "0", "0", 100);
     expect(found.some((p) => p.id === profile.id)).toBe(true);
   });
 
-  it('finds nearby craftsmen within the radius', async () => {
+  it("finds nearby craftsmen within the radius", async () => {
     const admin = await new UserRepository().create({
       email: `${randomId()}@example.com`,
-      name: 'Admin',
-      image: 'i',
-      role: 'admin',
+      name: "Admin",
+      image: "i",
+      role: "admin",
     });
     const near = await seedCraftsman({
       isAvailable: true,
-      workshopLatitude: '30.05',
-      workshopLongitude: '31.24',
+      workshopLatitude: "30.05",
+      workshopLongitude: "31.24",
     });
     const far = await seedCraftsman({
       isAvailable: true,
-      workshopLatitude: '40.0',
-      workshopLongitude: '40.0',
+      workshopLatitude: "40.0",
+      workshopLongitude: "40.0",
     });
     await new CraftsmanRepository().approve(near.id, admin.id);
     await new CraftsmanRepository().approve(far.id, admin.id);
 
-    const results = await new CraftsmanRepository().searchNearbyCraftsmen('plumber', '30.0444', '31.2357', 50);
+    const results = await new CraftsmanRepository().searchNearbyCraftsmen(
+      "plumber",
+      "30.0444",
+      "31.2357",
+      50
+    );
     expect(results.some((r) => r.profile.id === near.id)).toBe(true);
     expect(results.some((r) => r.profile.id === far.id)).toBe(false);
   });
 
-  it('returns an empty list for invalid coordinates', async () => {
-    expect(await new CraftsmanRepository().searchNearbyCraftsmen('plumber', 'not-a-number', '31', 50)).toEqual([]);
+  it("returns an empty list for invalid coordinates", async () => {
+    expect(
+      await new CraftsmanRepository().searchNearbyCraftsmen("plumber", "not-a-number", "31", 50)
+    ).toEqual([]);
   });
 
-  it('isolation: profiles table is truncated between tests', async () => {
+  it("isolation: profiles table is truncated between tests", async () => {
+    expect((await ctx.db.select().from(craftsmanProfiles)).length).toBe(0);
+    await seedCraftsman();
     expect((await ctx.db.select().from(craftsmanProfiles)).length).toBe(1);
+  });
+
+  it("searches approved craftsmen by name", async () => {
+    const admin = await new UserRepository().create({
+      email: `${randomId()}@example.com`,
+      name: "Admin",
+      image: "i",
+      role: "admin",
+    });
+    const named = await seedCraftsman({ isAvailable: true });
+    await seedCraftsman({ isAvailable: true });
+    await new CraftsmanRepository().approve(named.id, admin.id);
+
+    const results = await new CraftsmanRepository().searchByNameOrCraft("Craft");
+    expect(results.some((p) => p.id === named.id)).toBe(true);
+  });
+
+  it("returns only approved and available craftsmen in search", async () => {
+    const admin = await new UserRepository().create({
+      email: `${randomId()}@example.com`,
+      name: "Admin",
+      image: "i",
+      role: "admin",
+    });
+    const approved = await seedCraftsman({ isAvailable: true, craftType: "plumber" });
+    const pending = await seedCraftsman({ isAvailable: true, craftType: "plumber" });
+    await new CraftsmanRepository().approve(approved.id, admin.id);
+
+    const results = await new CraftsmanRepository().searchByNameOrCraft("", "plumber");
+    expect(results.some((p) => p.id === approved.id)).toBe(true);
+    expect(results.some((p) => p.id === pending.id)).toBe(false);
+  });
+
+  it("returns nothing for an empty query with no craft type", async () => {
+    await seedCraftsman({ isAvailable: true, craftType: "plumber" });
+    expect(await new CraftsmanRepository().searchByNameOrCraft("")).toEqual([]);
+  });
+
+  it("searches approved craftsmen by craft type", async () => {
+    const admin = await new UserRepository().create({
+      email: `${randomId()}@example.com`,
+      name: "Admin",
+      image: "i",
+      role: "admin",
+    });
+    const plumber = await seedCraftsman({ isAvailable: true, craftType: "plumber" });
+    await seedCraftsman({ isAvailable: true, craftType: "carpenter" });
+    await new CraftsmanRepository().approve(plumber.id, admin.id);
+
+    const results = await new CraftsmanRepository().searchByNameOrCraft("plumber");
+    expect(results.every((p) => p.craftType === "plumber")).toBe(true);
+    expect(results.some((p) => p.id === plumber.id)).toBe(true);
   });
 });

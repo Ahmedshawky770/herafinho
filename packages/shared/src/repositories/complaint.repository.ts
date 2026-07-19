@@ -4,14 +4,14 @@ import type {
   Complaint,
   ComplaintStatus,
   ModerationAction,
-} from '@herafino/types';
-import type { IComplaintRepository } from '@herafino/contracts';
-import { eq, and } from 'drizzle-orm';
-import { logger } from '../logger/factory';
-import { db } from '../db';
-import { complaints } from '../db/schema';
-import type { DomainEvent } from '@herafino/types';
-import { OutboxRepository } from '../events/outbox-repository';
+} from "@herafino/types";
+import type { IComplaintRepository } from "@herafino/contracts";
+import { eq } from "drizzle-orm";
+import { logger } from "../logger/factory";
+import { db } from "../db";
+import { complaints } from "../db/schema";
+import type { DomainEvent } from "@herafino/types";
+import { OutboxRepository } from "../events/outbox-repository";
 
 function toDomain(complaint: typeof complaints.$inferSelect): Complaint {
   return {
@@ -22,10 +22,6 @@ function toDomain(complaint: typeof complaints.$inferSelect): Complaint {
     resolvedAt: complaint.resolvedAt ?? undefined,
     evidenceUrls: complaint.evidenceUrls ?? [],
   };
-}
-
-function buildEvent(event: Omit<DomainEvent, 'id' | 'metadata'> & { metadata: DomainEvent['metadata'] }): DomainEvent {
-  return { id: crypto.randomUUID(), ...event };
 }
 
 export class ComplaintsRepository implements IComplaintRepository {
@@ -62,7 +58,7 @@ export class ComplaintsRepository implements IComplaintRepository {
 
   async findPending(): Promise<Complaint[]> {
     const result = await db.query.complaints.findMany({
-      where: eq(complaints.status, 'pending'),
+      where: eq(complaints.status, "pending"),
       orderBy: (c, { asc }) => [asc(c.createdAt)],
     });
     return result.map(toDomain);
@@ -70,19 +66,28 @@ export class ComplaintsRepository implements IComplaintRepository {
 
   async create(complaint: NewComplaint): Promise<Complaint> {
     const [created] = await db.insert(complaints).values(complaint).returning();
-    logger.info({ complaintId: created.id, reporterId: created.reporterId }, 'Complaint filed');
+    logger.info({ complaintId: created.id, reporterId: created.reporterId }, "Complaint filed");
     await this.appendOutbox({
       id: crypto.randomUUID(),
-      name: 'complaint.filed',
-      payload: { complaintId: created.id, reporterId: created.reporterId, againstUserId: created.againstUserId, reason: created.reason },
+      name: "complaint.filed",
+      payload: {
+        complaintId: created.id,
+        reporterId: created.reporterId,
+        againstUserId: created.againstUserId,
+        reason: created.reason,
+      },
       metadata: { occurredAt: new Date() },
     });
     return toDomain(created);
   }
 
   async updateStatus(id: ID, status: ComplaintStatus): Promise<Complaint> {
-    const [updated] = await db.update(complaints).set({ status, updatedAt: new Date() }).where(eq(complaints.id, id)).returning();
-    if (status !== 'pending') {
+    const [updated] = await db
+      .update(complaints)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(complaints.id, id))
+      .returning();
+    if (status !== "pending") {
       await this.appendOutbox({
         id: crypto.randomUUID(),
         name: `complaint.${status}`,
@@ -94,16 +99,20 @@ export class ComplaintsRepository implements IComplaintRepository {
   }
 
   async resolve(id: ID, action: ModerationAction, resolvedById: ID): Promise<Complaint> {
-    const [updated] = await db.update(complaints).set({
-      status: 'resolved',
-      actionTaken: action,
-      resolvedBy: resolvedById,
-      resolvedAt: new Date(),
-      updatedAt: new Date(),
-    }).where(eq(complaints.id, id)).returning();
+    const [updated] = await db
+      .update(complaints)
+      .set({
+        status: "resolved",
+        actionTaken: action,
+        resolvedBy: resolvedById,
+        resolvedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(complaints.id, id))
+      .returning();
     await this.appendOutbox({
       id: crypto.randomUUID(),
-      name: 'complaint.resolved',
+      name: "complaint.resolved",
       payload: { complaintId: updated.id, action },
       metadata: { actorId: resolvedById, occurredAt: new Date() },
     });

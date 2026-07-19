@@ -1,0 +1,23 @@
+# Gitleaks configuration for Harfino.
+# Extends the default rules and adds allowlists so the scanner does not fail on
+# local environment files, test fixtures, or intentionally-public demo values.
+
+ title = "Harfino Gitleaks Config"
+
+ [extend]
+ default = true
+
+ [allowlist]
+ description = "Paths and patterns that are safe to ignore"
+ paths = [
+   '''.*\.env\.local$''',
+   '''.*\.env\.example$''',
+   '''.*\.env\.test$''',
+   '''tests/.*''',
+   '''.*\.test\.(ts|tsx|js)$''',
+   '''docs/.*''',
+   '''coverage/.*''',
+    '''node_modules/.*''',
+    '''coverage/.*''',
+    '''playwright-report/.*''',
+  ]
