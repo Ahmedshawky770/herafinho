@@ -18,7 +18,7 @@
     "docker:down": "docker compose -f ../../docker-compose.yml down",
     "ws": "tsx src/ws/index.ts",
     "ws:dev": "tsx --watch src/ws/index.ts",
-    "prepare": "husky"
+    "prepare": "husky install 2>/dev/null || true"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",

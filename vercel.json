@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npx turbo run build --force",
+  "installCommand": "npm install",
+  "nodeVersion": "22.x"
+}
