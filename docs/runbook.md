@@ -145,7 +145,7 @@ require the extra services below.
 - `vercel.json` must NOT contain `nodeVersion` (unsupported key); pin the Node
   version via Project Settings → Node.js Version instead.
 
-**WebSocket server** (`apps/web/src/ws`, `npm run ws:prod`)
+**WebSocket server** (`apps/web/src/ws`, `npm run ws`)
 
 - Deploy as a long-running service (Railway, Render, Fly.io, a VPS container,
   or a Node server process). It is NOT covered by the Vercel deployment.
@@ -154,7 +154,7 @@ require the extra services below.
   `wss://` address. The client gracefully falls back to 30s polling if the
   socket is unavailable (`ws-provider.tsx`).
 
-**Workers** (`apps/workers`, `npm run worker:prod`)
+**Workers** (`apps/workers`, `npm run worker`)
 
 - Deploy as a long-running service sharing `DATABASE_URL` + `VALKEY_URL`.
 - Required vars: `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (email queue),
@@ -168,3 +168,19 @@ npx drizzle-kit migrate --config packages/shared/drizzle.config.json
 ```
 
 Run this against the target database before starting the app/workers.
+
+### One-click Blueprint (Render)
+
+`render.yaml` at the repo root defines the two long-running services as a
+Render "Blueprint":
+
+- `herafino-ws` (type `web`, Dockerfile `Dockerfile.ws`) — exposes the WS server
+  on `$PORT`; set `NEXT_PUBLIC_WS_URL=wss://<herafino-ws>.onrender.com` in the
+  **Vercel** web app so the client connects to it.
+- `herafino-worker` (type `worker`, Dockerfile `Dockerfile.worker`) — consumes
+  BullMQ queues + the event outbox.
+
+Connect the repo in Render → New → Blueprint, and set the `sync: false` env
+vars (`DATABASE_URL`, `DIRECT_URL`, `VALKEY_URL`, `RESEND_API_KEY`,
+`RESEND_FROM_EMAIL`, `NEXT_PUBLIC_WS_URL`) in the Render dashboard. The web app
+itself stays on Vercel; the Blueprint does not deploy it.

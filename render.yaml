@@ -1,0 +1,57 @@
+# Render deployment manifest for Harfino's long-running services.
+#
+# The Next.js web app is deployed separately on Vercel (see vercel.json +
+# docs/runbook.md). This manifest covers the two services Vercel cannot host:
+# the WebSocket server and the BullMQ background worker. Both must share the
+# same DATABASE_URL and VALKEY_URL as the web app.
+#
+# Usage: connect this repo in the Render dashboard → "Blueprint" → it creates
+# the two services below. Set the secret env vars in the Render dashboard
+# (or via render.com env group); the ones here are non-sensitive defaults.
+
+services:
+  # --- WebSocket server (real-time location + notifications) ---
+  - type: web
+    name: herafino-ws
+    runtime: docker
+    dockerfilePath: ./Dockerfile.ws
+    plan: starter
+    healthCheckPath: /health
+    # The WS server listens on 3001 internally; Render exposes it on $PORT.
+    envVars:
+      - key: PORT
+        value: "3001"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: VALKEY_URL
+        sync: false
+      - key: WS_PORT
+        value: "3001"
+      - key: NEXT_PUBLIC_WS_URL
+        sync: false
+
+  # --- BullMQ background worker (email, webhooks, outbox processor) ---
+  - type: worker
+    name: herafino-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: VALKEY_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: OUTBOX_POLL_INTERVAL_MS
+        value: "5000"
+      - key: WORKER_ID
+        value: "worker-1"
