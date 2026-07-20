@@ -42,9 +42,15 @@ valkey.on("ready", () => {
 });
 
 if (process.env.NODE_ENV !== "test") {
-  valkey.connect().catch((err: Error) => {
-    logger.fatal({ component: "valkey", error: err }, "Failed to connect to Valkey");
-  });
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    // On serverless platforms (e.g. Vercel) connections are established lazily
+    // on first use inside a request so the build step never hangs or fails
+    // trying to reach Valkey.
+  } else {
+    valkey.connect().catch((err: Error) => {
+      logger.fatal({ component: "valkey", error: err }, "Failed to connect to Valkey");
+    });
+  }
 }
 
 export type ValkeyClient = typeof valkey;
