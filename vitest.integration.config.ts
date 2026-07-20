@@ -17,9 +17,8 @@ export default defineConfig({
     include: ["tests/**/*.integration.test.{ts,tsx}", "apps/**/*.integration.test.{ts,tsx}"],
     exclude: ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/coverage/**"],
     fileParallelism: false,
-    poolOptions: {
-      forks: { singleFork: true },
-    },
+    pool: "forks",
+    singleFork: true,
     setupFiles: ["./tests/setup.ts", "./tests/vitest.setup.ts"],
     server: {
       deps: {

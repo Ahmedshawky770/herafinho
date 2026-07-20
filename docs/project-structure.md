@@ -73,7 +73,7 @@ herafino/
 │   │   │   │   │   ├── toast-provider.tsx
 │   │   │   │   │   └── auth-provider.tsx
 │   │   │   │   └── landing-page.tsx
-│   │   │   ├── middleware.ts      # Next.js auth middleware
+│   │   │   ├── proxy.ts           # Next.js 16 Proxy (replaces legacy middleware): auth + rate-limit + role-guards
 │   │   │   ├── hooks/            # Shared custom hooks
 │   │   │   │   └── index.ts
 │   │   │   ├── lib/             # Thin foundation layer — imports from @herafino/shared
@@ -81,8 +81,6 @@ herafino/
 │   │   │   │   │   └── verify-token.ts
 │   │   │   │   ├── cache/
 │   │   │   │   │   └── rate-limit.middleware.ts
-│   │   │   │   ├── db/
-│   │   │   │   │   └── repositories/   # Web-side repository re-exports (delegate to @herafino/shared)
 │   │   │   │   ├── http/
 │   │   │   │   │   └── error-handler.ts  # NextResponse error mapping
 │   │   │   │   ├── storage/
@@ -252,25 +250,25 @@ herafino/
 
 ## Key Design Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **apps/web** | Single Next.js app (not separate frontend/backend) — easier deployment |
-| **apps/workers** | Background jobs separated from web for independent scaling |
-| **packages/types** | Single source of truth for domain types (SSOT) |
-| **packages/contracts** | Interfaces between modules (Loose Coupling) |
-| **packages/shared** | Shared services, event bus, cache, DB connection, repositories + BullMQ job producers/consumers (`src/jobs`) — single source of truth |
-| **apps/web/src/components/features** | Presentational feature components (admin, auth, complaints, craftsman, layout, locations, orders, reviews, search) |
-| **apps/web/src/lib** | Thin foundation layer that imports from `@herafino/shared` (no duplicated DB/events/errors/validation/valkey) |
-| **apps/workers** | Thin orchestration layer: builds event handlers + starts BullMQ workers; job factories come from `@herafino/shared/jobs` |
-| **middleware.ts** | Next.js middleware inside the web app (`apps/web/src/middleware.ts`) |
-| **docs/adr** | Architecture Decision Records (11 ADRs covering adopted + planned decisions) |
-| **docs/diagrams** | C4 Model + Sequence + Data Flow diagrams |
-| **docker-compose.prod.yml** | Production-grade compose (secrets, health checks) |
-| **.github** | CI/CD pipelines |
-| **.husky** | Git hooks for lint + format before commit |
-| **Tailwind CSS v4** | Modern utility-first CSS with RTL & Arabic font support |
-| **ESLint flat config** | Modern ESLint v9 with `eslint.config.mjs` in web app |
-| **Vitest** | Fast unit & integration testing with jsdom environment |
+| Decision                             | Rationale                                                                                                                             |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **apps/web**                         | Single Next.js app (not separate frontend/backend) — easier deployment                                                                |
+| **apps/workers**                     | Background jobs separated from web for independent scaling                                                                            |
+| **packages/types**                   | Single source of truth for domain types (SSOT)                                                                                        |
+| **packages/contracts**               | Interfaces between modules (Loose Coupling)                                                                                           |
+| **packages/shared**                  | Shared services, event bus, cache, DB connection, repositories + BullMQ job producers/consumers (`src/jobs`) — single source of truth |
+| **apps/web/src/components/features** | Presentational feature components (admin, auth, complaints, craftsman, layout, locations, orders, reviews, search)                    |
+| **apps/web/src/lib**                 | Thin foundation layer that imports from `@herafino/shared` (no duplicated DB/events/errors/validation/valkey)                         |
+| **apps/workers**                     | Thin orchestration layer: builds event handlers + starts BullMQ workers; job factories come from `@herafino/shared/jobs`              |
+| **proxy.ts**                         | Next.js 16 Proxy (renamed from middleware) inside the web app (`apps/web/src/proxy.ts`): auth + rate-limit + role-guards              |
+| **docs/adr**                         | Architecture Decision Records (11 ADRs covering adopted + planned decisions)                                                          |
+| **docs/diagrams**                    | C4 Model + Sequence + Data Flow diagrams                                                                                              |
+| **docker-compose.prod.yml**          | Production-grade compose (secrets, health checks)                                                                                     |
+| **.github**                          | CI/CD pipelines                                                                                                                       |
+| **.husky**                           | Git hooks for lint + format before commit                                                                                             |
+| **Tailwind CSS v4**                  | Modern utility-first CSS with RTL & Arabic font support                                                                               |
+| **ESLint flat config**               | Modern ESLint v9 with `eslint.config.mjs` in web app                                                                                  |
+| **Vitest**                           | Fast unit & integration testing with jsdom environment                                                                                |
 
 ---
 
@@ -388,6 +386,7 @@ docs/
 ## CI/CD Checklist
 
 Every PR should pass:
+
 - [ ] `npm run lint` (ESLint)
 - [ ] `npm run typecheck` (TypeScript compiler)
 - [ ] `npm run test:unit` (Vitest unit tests)
@@ -427,6 +426,7 @@ Breaking Changes:
 ```
 
 **Examples:**
+
 ```
 feat(auth): add Google OAuth integration for craftsman onboarding
 fix(orders): fix order status not updating after acceptance
@@ -438,6 +438,7 @@ chore: bump Next.js to 14.2.0
 ---
 
 ## Related Documents
+
 - [Plan](docs/plan.md)
 - [ADR Template](docs/adr/template.md)
 - [Testing Pyramid](docs/diagrams/testing-pyramid.md)

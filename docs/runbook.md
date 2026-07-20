@@ -125,3 +125,46 @@ docker compose -f docker-compose.prod.yml start app ws worker
 
 **Escalation:** page on-call; if data loss is possible, involve DBA before manual
 SQL. Post `/api/health` output + container logs in the incident channel.
+
+### Vercel (Web App) + Separate Services (WS / Workers)
+
+The Next.js **web app** is the only component deployed to Vercel. The
+**WebSocket server** (port 3001) and the **BullMQ workers** are long-running
+processes that Vercel's serverless model does not host, so they must run as
+separate services. Deploying the web app alone still gives a working site; the
+real-time location feed and background jobs (email, webhooks, outbox processing)
+require the extra services below.
+
+**Vercel web app**
+
+- Build command: `npx turbo run build --force`
+- Install command: `npm install`
+- All server env vars used by the app must be declared in `turbo.json`
+  `globalEnv` (and set in the Vercel project) or they will be `undefined` at
+  build/runtime. See `.env.example` for the full list.
+- `vercel.json` must NOT contain `nodeVersion` (unsupported key); pin the Node
+  version via Project Settings → Node.js Version instead.
+
+**WebSocket server** (`apps/web/src/ws`, `npm run ws:prod`)
+
+- Deploy as a long-running service (Railway, Render, Fly.io, a VPS container,
+  or a Node server process). It is NOT covered by the Vercel deployment.
+- Must share the same `VALKEY_URL` as the web app (used for pub/sub fan-out).
+- Expose it behind TLS and set `NEXT_PUBLIC_WS_URL` in the web app to its
+  `wss://` address. The client gracefully falls back to 30s polling if the
+  socket is unavailable (`ws-provider.tsx`).
+
+**Workers** (`apps/workers`, `npm run worker:prod`)
+
+- Deploy as a long-running service sharing `DATABASE_URL` + `VALKEY_URL`.
+- Required vars: `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (email queue),
+  webhook secrets (webhook dispatch), `OUTBOX_POLL_INTERVAL_MS` (outbox
+  processor), `WORKER_ID` (idempotency across replicas).
+
+**Migration step (required on every environment)**
+
+```bash
+npx drizzle-kit migrate --config packages/shared/drizzle.config.json
+```
+
+Run this against the target database before starting the app/workers.

@@ -5,6 +5,7 @@ A location-aware marketplace platform connecting Egyptian tradespeople (craftsme
 ## Overview
 
 Harfino is a Next.js-based modular monolith platform that enables:
+
 - Real-time location tracking of available craftsmen
 - Craftsman verification workflow (ID, transport, workshop verification)
 - Order management with status transitions
@@ -16,11 +17,11 @@ Harfino is a Next.js-based modular monolith platform that enables:
 
 ## Prerequisites
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js | 20.x LTS |
-| Docker | 24.x |
-| Docker Compose | v2.x |
+| Requirement    | Version  |
+| -------------- | -------- |
+| Node.js        | 20.x LTS |
+| Docker         | 24.x     |
+| Docker Compose | v2.x     |
 
 ## Quick Start
 
@@ -90,9 +91,22 @@ npm run worker:dev          # Background workers (dev)
 └─────────────────────────────────────────────────────────┘
 ```
 
+## Deployment Topology
+
+- **Web app** (`apps/web`): deployed to **Vercel** — Next.js 16 standalone build.
+- **WebSocket server** (`apps/web/src/ws`, `npm run ws`): long-running service
+  (not on Vercel) sharing `VALKEY_URL` for realtime pub/sub.
+- **Background workers** (`apps/workers`, `npm run worker`): long-running BullMQ
+  consumers (email, webhooks, outbox) — also run outside Vercel.
+
+The site works on Vercel alone; real-time location and background jobs require
+the separate WS/worker services. See `docs/runbook.md` for the full topology and
+required environment variables.
+
 ## Contributing
 
 Before submitting a PR, ensure:
+
 - [ ] All tests pass (`npm run test:all`)
 - [ ] TypeScript compiles (`npm run typecheck`)
 - [ ] ESLint passes (`npm run lint`)

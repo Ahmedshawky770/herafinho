@@ -69,6 +69,7 @@ jobs:
         run: npx drizzle-kit migrate --config packages/shared/drizzle.config.json
         env:
           DATABASE_URL: postgres://herafino:herafino@localhost:5432/herafino
+          DIRECT_URL: postgres://herafino:herafino@localhost:5432/herafino
       - name: Test (npm test)
         run: npm test
         env:
