@@ -30,7 +30,10 @@
     "DIRECT_URL",
     "RESEND_API_KEY",
     "S3_BUCKET",
-    "S3_REGION"
+    "S3_REGION",
+    "RESEND_FROM_EMAIL",
+    "OUTBOX_POLL_INTERVAL_MS",
+    "WORKER_ID"
   ],
   "tasks": {
     "dev": {
