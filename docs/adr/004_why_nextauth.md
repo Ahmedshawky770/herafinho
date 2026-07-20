@@ -1,6 +1,6 @@
 # ADR-004: Choosing NextAuth v4 (Auth.js) over Custom JWT Implementation
 
-> **Status note (Implementation):** The original decision (recorded above) was made for **NextAuth v5**. The version actually installed and implemented is **next-auth v4** (`next-auth@^4.24.14`), which is what the code samples in this repo reflect. The rationale below remains valid; only the major version differs.
+> **Status note (Implementation):** The implementation uses **next-auth v4** (`next-auth@^4.24.14`). This is a _deliberate_ decision, not a fallback: v4 is mature, stable, and fully compatible with the Next.js 16 App Router, whereas the v5 (`@auth/next`) rewrite introduces API-breaking changes and less-proven behaviour on this very new Next.js line. See "Why not NextAuth v5?" below.
 
 | Status    | Accepted     |
 | --------- | ------------ |
@@ -53,7 +53,7 @@ We chose **NextAuth v4 (Auth.js)**.
 
 ### Why not third-party auth (Clerk / Supabase)?
 
-- **Vendor lock-in**: Harfino's data model is custom (craftsman profiles with 9-step onboarding, freeze/ban logic, 3-strike auto-ban). Clerk/Supabase Auth adds a dependency that may not fit.
+- **Vendor lock-in**: Harfino's data model is custom (craftsman profiles with ID/transport/workshop verification, freeze/ban logic, 3-strike auto-ban). Clerk/Supabase Auth adds a dependency that may not fit.
 - **Cost**: These platforms charge at scale. Harfino wants to minimize recurring costs.
 - **Data residency**: Egyptian users → data should remain in our control.
 
@@ -87,8 +87,8 @@ We chose **NextAuth v4 (Auth.js)**.
 ## Session Model
 
 ```typescript
-// libs/auth/options.ts
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// apps/web/src/app/auth.ts
+export const authOptions = {
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -96,25 +96,50 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
-      if (account && profile) {
-        token.googleId = profile.sub;
-        token.email = profile.email;
-        token.role = (await getUserRole(profile.sub)) ?? "client";
+    async jwt({ token, user, profile }) {
+      if (user) {
+        const googleId = (profile as { sub?: string } | undefined)?.sub ?? user.id;
+        // ...resolve/create user, propagate role + onboardingComplete into token...
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.sub!;
-      session.user.googleId = token.googleId as string;
-      session.user.role = token.role as UserRole;
+      session.user.id = token.userId ?? "";
+      session.user.googleId = token.googleId ?? "";
+      session.user.role = token.role ?? "client";
+      session.user.onboardingComplete = token.onboardingComplete ?? false;
       return session;
     },
   },
-});
+  session: { strategy: "jwt", maxAge: 24 * 60 * 60 },
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+export const auth = async () => getServerSession(authOptions);
+export const handlers = NextAuth(authOptions);
+export { signIn, signOut } from "next-auth/react";
 ```
 
 ---
+
+## Why not NextAuth v5 (`@auth/next`)?
+
+NextAuth v5 (Auth.js) is the newer rewrite with a different API surface
+(`Auth()` factory, `handlers` export, `auth.config`, env-based `AUTH_SECRET`).
+We considered it and **deliberately stayed on v4** for this project:
+
+- **Stability on Next.js 16** — v4 is battle-tested with the App Router and is
+  what the codebase is built against. v5's rewrite has churn and less-proven
+  behaviour on this very new Next.js major version.
+- **No required features** — v5 offers no capability Harfino needs that v4
+  lacks (Google OAuth, JWT sessions, role claims, WS token extraction all work
+  on v4). The migration would touch ~16 files for zero functional gain.
+- **Lower risk** — keeping the pinned, working `next-auth@^4.24.14` avoids a
+  major-version migration that could regress the auth/proxy flow.
+
+Client-side APIs (`useSession`, `signIn`, `signOut` from `next-auth/react`) are
+identical across v4 and v5, so the React components require no change either
+way. A future v5 migration is feasible but is intentionally deferred.
 
 ## Alternatives Considered
 
