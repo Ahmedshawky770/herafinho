@@ -15,6 +15,20 @@
       "when": 1784300000000,
       "tag": "0001_onboarding_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1784300000001,
+      "tag": "0002_workshop_postgis",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1784300000002,
+      "tag": "0003_performance_indexes",
+      "breakpoints": true
     }
   ]
 }
