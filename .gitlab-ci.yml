@@ -191,8 +191,6 @@ security:
     - npm audit --audit-level=high
     - semgrep ci --config p/default
     - "${CI_PROJECT_DIR}/.gitleaks-bin/gitleaks detect --source . --config .gitleaks.toml --redact --exit-code 1"
-  allow_failure:
-    exit_codes: 1
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

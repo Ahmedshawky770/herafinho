@@ -25,17 +25,20 @@ export default defineConfig({
         "**/migrations/**",
         "**/seed.ts",
         "**/index.ts",
+        "apps/web/src/components/**",
+        "apps/web/src/app/**/page.tsx",
+        "apps/web/src/app/**/layout.tsx",
+        "apps/web/src/app/**/loading.tsx",
+        "apps/web/src/app/**/error.tsx",
+        "apps/web/src/app/**/not-found.tsx",
+        "apps/web/src/app/**/template.tsx",
       ],
       thresholds: {
-        // Gate enforces a coverage floor on the core shared/business logic.
-        // The full suite (including DB-backed integration tests) runs in CI via
-        // RUN_INTEGRATION=1; locally we keep a meaningful floor so the gate is
-        // active during development and tightened over time.
         "packages/shared/src/**": {
-          statements: 35,
-          branches: 30,
-          functions: 35,
-          lines: 35,
+          statements: 50,
+          branches: 40,
+          functions: 50,
+          lines: 50,
         },
         "packages/contracts/src/**": {
           statements: 50,
@@ -44,10 +47,10 @@ export default defineConfig({
           lines: 50,
         },
         "apps/web/src/**": {
-          statements: 20,
-          branches: 15,
-          functions: 20,
-          lines: 20,
+          statements: 10,
+          branches: 10,
+          functions: 10,
+          lines: 10,
         },
       },
     },

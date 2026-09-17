@@ -59,10 +59,9 @@ async function resolveOnboardingComplete(dbUser: {
 }
 
 // How often (ms) the JWT re-reads the user's state from the database. This keeps
-// long-lived tokens (including ones minted before the onboarding column existed)
-// automatically in sync without forcing a re-login. It is independent of the
-// session `maxAge`, so users are not signed out early.
-const TOKEN_SYNC_INTERVAL_MS = 60 * 1000;
+// long-lived tokens automatically in sync without forcing a re-login. It is
+// independent of the session `maxAge`, so users are not signed out early.
+const TOKEN_SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 // Re-reads the user's current role/onboarding state from the database and writes
 // it back onto the JWT. Safe to call on every request; it no-ops on failure so a

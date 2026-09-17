@@ -15,7 +15,7 @@
     "typecheck": "turbo run typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:unit": "vitest run tests/unit",
+    "test:unit": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage",
@@ -41,8 +41,6 @@
     ]
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1088.0",
-    "@aws-sdk/s3-request-presigner": "^3.1088.0",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
